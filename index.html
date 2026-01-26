@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>‰Ÿ«„ I CAN - «·≈œ«—… «·”Õ«»Ì…</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // ≈⁄œ«œ«  Firebase «·Œ«’… »ﬂˆ
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3dczppftLkPSpsMVsb3GsryyYqDjGgEo",
+            authDomain: "ican-5dfb5.firebaseapp.com",
+            projectId: "ican-5dfb5",
+            storageBucket: "ican-5dfb5.firebasestorage.app",
+            messagingSenderId: "471479335646",
+            appId: "1:471479335646:web:bdb0adacf9aae88afee04f",
+            measurementId: "G-GBJZQ84RZR"
+        };
+
+        //  ‘€Ì· Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- «·œÊ«· «·»—„ÃÌ… ··‰Ÿ«„ ---
+        
+        window.addWorker = function() {
+            const name = document.getElementById('workerName').value;
+            if (name) {
+                const workersRef = ref(db, 'workers');
+                push(workersRef, { name: name, status: 'active' });
+                document.getElementById('workerName').value = "";
+            }
+        };
+
+        // Ã·» «·⁄„«· „‰ ﬁ«⁄œ… «·»Ì«‰«  Ê⁄—÷Â„
+        onValue(ref(db, 'workers'), (snapshot) => {
+            const list = document.getElementById('workersList');
+            list.innerHTML = "";
+            snapshot.forEach((childSnapshot) => {
+                const data = childSnapshot.val();
+                if (data.status === 'active') {
+                    const div = document.createElement('div');
+                    div.className = 'worker-card';
+                    div.innerText = data.name;
+                    div.onclick = () => openWorkerMonths(childSnapshot.key, data.name);
+                    list.appendChild(div);
+                }
+            });
+        });
+
+        window.saveAttendance = function(workerId, monthIdx, day, type, value) {
+            update(ref(db, `attendance/${workerId}/${monthIdx}/${day}`), {
+                [type]: value
+            });
+        };
+
+        window.trashWorker = function(workerId) {
+            if(confirm("‰ﬁ· «·⁄«„· ·”·… «·„Â„·« ø (··„œÌ—Ì‰ ›ﬁÿ)")) {
+                update(ref(db, `workers/${workerId}`), { status: 'trash' });
+                location.reload();
+            }
+        };
+    </script>
+
+    <style>
+        body { background-color: #4a0000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; }
+        .i-can-bg { font-size: 100px; font-weight: bold; color: rgba(255, 255, 255, 0.03); position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; }
+        .container { width: 90%; max-width: 800px; background: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 20px; backdrop-filter: blur(10px); margin: 50px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .worker-card { background: white; color: #4a0000; padding: 15px; margin: 10px; border-radius: 12px; cursor: pointer; display: inline-block; width: 150px; font-weight: bold; }
+        .day-row { display: flex; justify-content: space-between; background: white; color: #333; margin: 5px 0; padding: 10px; border-radius: 8px; }
+        input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        .hidden { display: none; }
+        .month-btn { background: rgba(255,255,255,0.2); padding: 15px; margin: 5px; border-radius: 10px; cursor: pointer; display: inline-block; width: 100px; }
+        .btn-red { background: #dc3545; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="i-can-bg">I CAN</div>
+
+<div id="screen-workers" class="container">
+    <h1>≈÷«›… ⁄«„· ÃœÌœ</h1>
+    <input type="text" id="workerName" placeholder="«”„ «·⁄«„·...">
+    <button onclick="addWorker()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:8px;">≈÷«›…</button>
+    <div id="workersList" style="margin-top:20px;"></div>
+</div>
+
+<div id="screen-months" class="container hidden">
+    <h2 id="currentWorkerName"></h2>
+    <div id="monthsGrid"></div>
+    <button class="btn-red" id="trashBtn">‰ﬁ· «·⁄«„· ·”·… «·„Â„·« </button>
+    <button onclick="location.reload()" style="display:block; margin:20px auto;">—ÃÊ⁄</button>
+</div>
+
+<div id="screen-days" class="container hidden">
+    <h2 id="currentMonthName"></h2>
+    <div id="daysList" style="max-height: 400px; overflow-y: auto;"></div>
+    <button onclick="document.getElementById('screen-days').classList.add('hidden'); document.getElementById('screen-months').classList.remove('hidden');" style="margin-top:20px;">—ÃÊ⁄ ··‘ÂÊ—</button>
+</div>
+
+<script>
+    const months = ["Ì‰«Ì—", "›»—«Ì—", "„«—”", "√»—Ì·", "„«ÌÊ", "ÌÊ‰ÌÊ", "ÌÊ·ÌÊ", "√€”ÿ”", "”» „»—", "√ﬂ Ê»—", "‰Ê›„»—", "œÌ”„»—"];
+    
+    function openWorkerMonths(id, name) {
+        document.getElementById('screen-workers').classList.add('hidden');
+        document.getElementById('screen-months').classList.remove('hidden');
+        document.getElementById('currentWorkerName').innerText = name;
+        document.getElementById('trashBtn').onclick = () => trashWorker(id);
+
+        const grid = document.getElementById('monthsGrid');
+        grid.innerHTML = "";
+        months.forEach((m, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'month-btn';
+            btn.innerText = m;
+            btn.onclick = () => loadDays(id, m, idx + 1);
+            grid.appendChild(btn);
+        });
+    }
+
+    function loadDays(workerId, monthName, monthIdx) {
+        document.getElementById('screen-months').classList.add('hidden');
+        document.getElementById('screen-days').classList.remove('hidden');
+        document.getElementById('currentMonthName').innerText = "‘Â— " + monthName;
+        
+        const list = document.getElementById('daysList');
+        list.innerHTML = "";
+        for (let i = 1; i <= 30; i++) {
+            let date = new Date(2026, monthIdx - 1, i);
+            if (date.getDay() !== 5 && date.getDay() !== 6) {
+                const row = document.createElement('div');
+                row.className = 'day-row';
+                row.innerHTML = `
+                    <span>ÌÊ„ ${i}</span>
+                    <input type="text" placeholder="Õ÷Ê—" onchange="saveAttendance('${workerId}', ${monthIdx}, ${i}, 'in', this.value)">
+                    <input type="text" placeholder="«‰’—«›" onchange="saveAttendance('${workerId}', ${monthIdx}, ${i}, 'out', this.value)">
+                `;
+                list.appendChild(row);
+            }
+        }
+    }
+</script>
+</body>
+</html>
