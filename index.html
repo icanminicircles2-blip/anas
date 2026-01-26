@@ -2,12 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>äÙÇã I CAN - ÇáÅÏÇÑÉ ÇáÓÍÇÈíÉ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ù†Ø¸Ø§Ù… I CAN - Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø§Ø­ØªØ±Ø§ÙÙŠØ©</title>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // ÅÚÏÇÏÇÊ Firebase ÇáÎÇÕÉ Èßö
         const firebaseConfig = {
             apiKey: "AIzaSyC3dczppftLkPSpsMVsb3GsryyYqDjGgEo",
             authDomain: "ican-5dfb5.firebaseapp.com",
@@ -18,128 +19,151 @@
             measurementId: "G-GBJZQ84RZR"
         };
 
-        // ÊÔÛíá Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- ÇáÏæÇá ÇáÈÑãÌíÉ ááäÙÇã ---
-        
+        // --- ÙˆØ¸Ø§Ø¦Ù Ø§Ù„Ù†Ø¸Ø§Ù… ---
         window.addWorker = function() {
             const name = document.getElementById('workerName').value;
             if (name) {
-                const workersRef = ref(db, 'workers');
-                push(workersRef, { name: name, status: 'active' });
+                push(ref(db, 'workers'), { name: name, status: 'active' });
                 document.getElementById('workerName').value = "";
             }
         };
 
-        // ÌáÈ ÇáÚãÇá ãä ŞÇÚÏÉ ÇáÈíÇäÇÊ æÚÑÖåã
         onValue(ref(db, 'workers'), (snapshot) => {
             const list = document.getElementById('workersList');
-            list.innerHTML = "";
-            snapshot.forEach((childSnapshot) => {
-                const data = childSnapshot.val();
+            const trashList = document.getElementById('trashList');
+            list.innerHTML = ""; trashList.innerHTML = "";
+            snapshot.forEach((child) => {
+                const data = child.val();
+                const div = document.createElement('div');
+                div.className = 'worker-card';
+                div.innerText = data.name;
+                
                 if (data.status === 'active') {
-                    const div = document.createElement('div');
-                    div.className = 'worker-card';
-                    div.innerText = data.name;
-                    div.onclick = () => openWorkerMonths(childSnapshot.key, data.name);
+                    div.onclick = () => openWorkerMonths(child.key, data.name);
                     list.appendChild(div);
+                } else {
+                    div.style.background = "#ccc";
+                    trashList.appendChild(div);
                 }
             });
         });
 
-        window.saveAttendance = function(workerId, monthIdx, day, type, value) {
-            update(ref(db, `attendance/${workerId}/${monthIdx}/${day}`), {
-                [type]: value
-            });
+        window.saveData = function(workerId, monthIdx, day, type, val) {
+            update(ref(db, `attendance/${workerId}/${monthIdx}/${day}`), { [type]: val });
         };
 
-        window.trashWorker = function(workerId) {
-            if(confirm("äŞá ÇáÚÇãá áÓáÉ ÇáãåãáÇÊ¿ (ááãÏíÑíä İŞØ)")) {
+        window.moveWorkerToTrash = function(workerId) {
+            if(confirm("Ù†Ù‚Ù„ Ø§Ù„Ù…ÙˆØ¸Ù Ù„Ø³Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ù„Ø§ØªØŸ")) {
                 update(ref(db, `workers/${workerId}`), { status: 'trash' });
-                location.reload();
+                showScreen('screen-workers');
             }
         };
     </script>
 
     <style>
-        body { background-color: #4a0000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; }
-        .i-can-bg { font-size: 100px; font-weight: bold; color: rgba(255, 255, 255, 0.03); position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; }
-        .container { width: 90%; max-width: 800px; background: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 20px; backdrop-filter: blur(10px); margin: 50px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .worker-card { background: white; color: #4a0000; padding: 15px; margin: 10px; border-radius: 12px; cursor: pointer; display: inline-block; width: 150px; font-weight: bold; }
-        .day-row { display: flex; justify-content: space-between; background: white; color: #333; margin: 5px 0; padding: 10px; border-radius: 8px; }
-        input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        body { background-color: #4a0000; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; text-align: center; }
+        .i-can-bg { font-size: 120px; font-weight: bold; color: rgba(255, 255, 255, 0.03); position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; pointer-events: none; }
+        .container { width: 90%; max-width: 800px; background: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(15px); margin: 50px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { padding: 12px; border-radius: 8px; border: none; margin: 10px; width: 70%; font-size: 16px; }
+        .worker-card { background: white; color: #4a0000; padding: 15px; margin: 10px; border-radius: 12px; cursor: pointer; display: inline-block; width: 140px; font-weight: bold; transition: 0.3s; }
+        .worker-card:hover { transform: scale(1.05); }
+        .day-row { display: flex; justify-content: space-around; background: white; color: #333; margin: 5px 0; padding: 10px; border-radius: 8px; align-items: center; }
+        .day-row input { width: 80px; margin: 0; background: #eee; font-size: 14px; }
         .hidden { display: none; }
-        .month-btn { background: rgba(255,255,255,0.2); padding: 15px; margin: 5px; border-radius: 10px; cursor: pointer; display: inline-block; width: 100px; }
-        .btn-red { background: #dc3545; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-red { background: #dc3545; color: white; }
+        .months-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .month-btn { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; cursor: pointer; }
+        .admin-section { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 40px; padding-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="i-can-bg">I CAN</div>
+    <div class="i-can-bg">I CAN</div>
 
-<div id="screen-workers" class="container">
-    <h1>ÅÖÇİÉ ÚÇãá ÌÏíÏ</h1>
-    <input type="text" id="workerName" placeholder="ÇÓã ÇáÚÇãá...">
-    <button onclick="addWorker()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:8px;">ÅÖÇİÉ</button>
-    <div id="workersList" style="margin-top:20px;"></div>
-</div>
+    <div id="screen-workers" class="container">
+        <h1>Ø¥Ø¶Ø§ÙØ© Ø¹Ø§Ù…Ù„ Ø¬Ø¯ÙŠØ¯</h1>
+        <input type="text" id="workerName" placeholder="Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø§Ù„Ø¹Ø§Ù…Ù„...">
+        <button class="btn btn-green" onclick="addWorker()">Ø¥Ø¶Ø§ÙØ©</button>
+        <div id="workersList" style="margin-top:20px;"></div>
 
-<div id="screen-months" class="container hidden">
-    <h2 id="currentWorkerName"></h2>
-    <div id="monthsGrid"></div>
-    <button class="btn-red" id="trashBtn">äŞá ÇáÚÇãá áÓáÉ ÇáãåãáÇÊ</button>
-    <button onclick="location.reload()" style="display:block; margin:20px auto;">ÑÌæÚ</button>
-</div>
+        <div class="admin-section">
+            <button class="btn" style="background: #666; color: white;" onclick="toggleTrash()">Ø¥Ø¸Ù‡Ø§Ø±/Ø¥Ø®ÙØ§Ø¡ Ø³Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ù„Ø§Øª</button>
+            <div id="trashContainer" class="hidden">
+                <h3>Ø³Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ù„Ø§Øª (Children Trash)</h3>
+                <div id="trashList"></div>
+            </div>
+        </div>
+    </div>
 
-<div id="screen-days" class="container hidden">
-    <h2 id="currentMonthName"></h2>
-    <div id="daysList" style="max-height: 400px; overflow-y: auto;"></div>
-    <button onclick="document.getElementById('screen-days').classList.add('hidden'); document.getElementById('screen-months').classList.remove('hidden');" style="margin-top:20px;">ÑÌæÚ ááÔåæÑ</button>
-</div>
+    <div id="screen-months" class="container hidden">
+        <h2 id="currentWorkerName" style="color: #ff4d4d;"></h2>
+        <div class="months-grid" id="monthsGrid"></div>
+        <hr>
+        <button class="btn btn-red" id="deleteBtn">Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„ Ù„Ø³Ù„Ø© Ø§Ù„Ù…Ù‡Ù…Ù„Ø§Øª</button>
+        <button class="btn" onclick="showScreen('screen-workers')">Ø±Ø¬ÙˆØ¹ Ù„Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</button>
+    </div>
 
-<script>
-    const months = ["íäÇíÑ", "İÈÑÇíÑ", "ãÇÑÓ", "ÃÈÑíá", "ãÇíæ", "íæäíæ", "íæáíæ", "ÃÛÓØÓ", "ÓÈÊãÈÑ", "ÃßÊæÈÑ", "äæİãÈÑ", "ÏíÓãÈÑ"];
-    
-    function openWorkerMonths(id, name) {
-        document.getElementById('screen-workers').classList.add('hidden');
-        document.getElementById('screen-months').classList.remove('hidden');
-        document.getElementById('currentWorkerName').innerText = name;
-        document.getElementById('trashBtn').onclick = () => trashWorker(id);
+    <div id="screen-days" class="container hidden">
+        <h2 id="currentMonthTitle"></h2>
+        <div id="daysList" style="max-height: 400px; overflow-y: auto;"></div>
+        <button class="btn btn-green" onclick="alert('ÙŠØªÙ… Ø§Ù„Ø­ÙØ¸ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ ÙÙŠ Ø§Ù„Ø³Ø­Ø§Ø¨!')">ØªÙ… Ø§Ù„Ø­ÙØ¸</button>
+        <button class="btn" onclick="showScreen('screen-months')">Ø±Ø¬ÙˆØ¹ Ù„Ù„Ø´Ù‡ÙˆØ±</button>
+    </div>
 
-        const grid = document.getElementById('monthsGrid');
-        grid.innerHTML = "";
-        months.forEach((m, idx) => {
-            const btn = document.createElement('div');
-            btn.className = 'month-btn';
-            btn.innerText = m;
-            btn.onclick = () => loadDays(id, m, idx + 1);
-            grid.appendChild(btn);
-        });
-    }
+    <script>
+        const monthsNames = ["ÙŠÙ†Ø§ÙŠØ±", "ÙØ¨Ø±Ø§ÙŠØ±", "Ù…Ø§Ø±Ø³", "Ø£Ø¨Ø±ÙŠÙ„", "Ù…Ø§ÙŠÙˆ", "ÙŠÙˆÙ†ÙŠÙˆ", "ÙŠÙˆÙ„ÙŠÙˆ", "Ø£ØºØ³Ø·Ø³", "Ø³Ø¨ØªÙ…Ø¨Ø±", "Ø£ÙƒØªÙˆØ¨Ø±", "Ù†ÙˆÙÙ…Ø¨Ø±", "Ø¯ÙŠØ³Ù…Ø¨Ø±"];
+        let currentWID = "";
 
-    function loadDays(workerId, monthName, monthIdx) {
-        document.getElementById('screen-months').classList.add('hidden');
-        document.getElementById('screen-days').classList.remove('hidden');
-        document.getElementById('currentMonthName').innerText = "ÔåÑ " + monthName;
-        
-        const list = document.getElementById('daysList');
-        list.innerHTML = "";
-        for (let i = 1; i <= 30; i++) {
-            let date = new Date(2026, monthIdx - 1, i);
-            if (date.getDay() !== 5 && date.getDay() !== 6) {
-                const row = document.createElement('div');
-                row.className = 'day-row';
-                row.innerHTML = `
-                    <span>íæã ${i}</span>
-                    <input type="text" placeholder="ÍÖæÑ" onchange="saveAttendance('${workerId}', ${monthIdx}, ${i}, 'in', this.value)">
-                    <input type="text" placeholder="ÇäÕÑÇİ" onchange="saveAttendance('${workerId}', ${monthIdx}, ${i}, 'out', this.value)">
-                `;
-                list.appendChild(row);
-            }
+        function showScreen(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
         }
-    }
-</script>
+
+        function toggleTrash() {
+            document.getElementById('trashContainer').classList.toggle('hidden');
+        }
+
+        function openWorkerMonths(id, name) {
+            currentWID = id;
+            document.getElementById('currentWorkerName').innerText = name;
+            document.getElementById('deleteBtn').onclick = () => moveWorkerToTrash(id);
+            const grid = document.getElementById('monthsGrid');
+            grid.innerHTML = "";
+            monthsNames.forEach((m, i) => {
+                let div = document.createElement('div');
+                div.className = 'month-btn';
+                div.innerText = m;
+                div.onclick = () => loadDays(id, m, i + 1);
+                grid.appendChild(div);
+            });
+            showScreen('screen-months');
+        }
+
+        function loadDays(wid, mName, mIdx) {
+            document.getElementById('currentMonthTitle').innerText = "Ø³Ø¬Ù„ Ø´Ù‡Ø± " + mName;
+            const list = document.getElementById('daysList');
+            list.innerHTML = "";
+            for (let i = 1; i <= 31; i++) {
+                let d = new Date(2026, mIdx - 1, i);
+                if (d.getMonth() + 1 !== mIdx) break; 
+                if (d.getDay() !== 5 && d.getDay() !== 6) { // Ø§Ø³ØªØ«Ù†Ø§Ø¡ Ø§Ù„Ø¬Ù…Ø¹Ø© ÙˆØ§Ù„Ø³Ø¨Øª
+                    let row = document.createElement('div');
+                    row.className = 'day-row';
+                    row.innerHTML = `
+                        <strong>ÙŠÙˆÙ… ${i}</strong>
+                        <div>Ø­Ø¶ÙˆØ± <input type="text" onchange="saveData('${wid}',${mIdx},${i},'in',this.value)" placeholder=". . ."></div>
+                        <div>Ø§Ù†ØµØ±Ø§Ù <input type="text" onchange="saveData('${wid}',${mIdx},${i},'out',this.value)" placeholder=". . ."></div>
+                    `;
+                    list.appendChild(row);
+                }
+            }
+            showScreen('screen-days');
+        }
+    </script>
 </body>
 </html>
