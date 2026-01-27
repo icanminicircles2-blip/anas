@@ -3,11 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام I CAN - الإدارة الاحترافية</title>
+    <title>نظام I CAN - تقارير التأخير</title>
     
+    <style>
+        body {
+            background: linear-gradient(135deg, #004d40, #002f6c);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            text-align: center;
+            min-height: 100vh;
+        }
+
+        .i-can-bg {
+            font-size: 100px; font-weight: bold; color: rgba(255, 255, 255, 0.03);
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .container {
+            width: 95%; max-width: 950px; background: rgba(255, 255, 255, 0.15);
+            padding: 25px; border-radius: 25px; backdrop-filter: blur(15px);
+            margin: 20px auto; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .add-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+
+        input[type="text"] {
+            padding: 12px; border-radius: 10px; border: none;
+            width: 60%; font-size: 16px; text-align: center; outline: none;
+        }
+
+        .worker-card {
+            background: white; color: #002f6c; padding: 15px; margin: 8px;
+            border-radius: 12px; cursor: pointer; display: inline-block;
+            width: 150px; font-weight: bold; transition: 0.3s;
+        }
+
+        .day-row {
+            display: grid; grid-template-columns: 0.5fr 1.5fr 1.5fr 1fr 1fr;
+            gap: 10px; background: rgba(255, 255, 255, 0.95); color: #333;
+            margin: 6px 0; padding: 10px; border-radius: 10px; align-items: center;
+        }
+
+        .touch-box { background: #007bff; color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+        .stat-view { border: none; background: #eee; padding: 6px; border-radius: 8px; text-align: center; font-weight: bold; }
+
+        .report-section {
+            background: #fff3cd; color: #856404; padding: 15px;
+            border-radius: 15px; margin: 15px 0; font-weight: bold; font-size: 18px;
+            display: flex; justify-content: space-around; align-items: center;
+        }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-add { background: #28a745; color: white; margin-top: 10px; }
+        .btn-report { background: #ffc107; color: #212529; width: 100%; margin: 10px 0; }
+        .btn-clear { background: #ff5722; color: white; margin-top: 40px; font-size: 11px; }
+
+        .months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .month-btn { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; cursor: pointer; }
+
+        .hidden { display: none; }
+        #daysList { max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="i-can-bg">I CAN</div>
+
+    <div id="screen-workers" class="container">
+        <div class="add-box">
+            <h2>إضافة موظف جديد</h2>
+            <input type="text" id="workerName" placeholder="اكتب الاسم هنا...">
+            <br>
+            <button class="btn btn-add" onclick="addWorker()">➕ إضافة للقائمة</button>
+        </div>
+        <div id="workersList"></div>
+        <button class="btn btn-clear" onclick="clearAllData()">⚠️ مسح البيانات</button>
+    </div>
+
+    <div id="screen-months" class="container hidden">
+        <h2 id="currentWorkerName" style="background: white; color: #002f6c; padding: 10px; border-radius: 10px; display: inline-block;"></h2>
+        <div class="months-grid" id="monthsGrid"></div>
+        <button class="btn" style="background:#555; color:white; margin-top: 20px;" onclick="showScreen('screen-workers')">🔙 رجوع</button>
+    </div>
+
+    <div id="screen-days" class="container hidden">
+        <h2 id="currentMonthTitle"></h2>
+        
+        <button class="btn btn-report" onclick="generateReport()">📊 إصدار تقرير التأخيرات لهذا الشهر</button>
+
+        <div id="reportResult" class="report-section hidden">
+            <span>إجمالي التأخير: <span id="totalDelay">0</span> دقيقة</span>
+            <span>إجمالي الانصراف المبكر: <span id="totalEarly">0</span> دقيقة</span>
+        </div>
+
+        <div class="day-row" style="background: #002f6c; color: white; font-weight: bold;">
+            <span>يوم</span><span>الحضور (8:30)</span><span>الانصراف (4:30)</span><span>تأخير</span><span>مبكر</span>
+        </div>
+        <div id="daysList"></div>
+        <button class="btn btn-add" style="width:100%; margin-top:15px;" onclick="showScreen('screen-months')">✅ العودة للشهور</button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC3dczppftLkPSpsMVsb3GsryyYqDjGgEo",
@@ -21,120 +123,40 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        let currentWorkerId = "";
+        let currentMonthIdx = "";
 
-        // --- وظائف النظام ---
-        window.addWorker = function() {
-            const name = document.getElementById('workerName').value;
-            if (name) {
-                push(ref(db, 'workers'), { name: name, status: 'active' });
-                document.getElementById('workerName').value = "";
-            }
+        window.showScreen = (id) => {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id !== 'screen-days') document.getElementById('reportResult').classList.add('hidden');
         };
+
+        window.addWorker = () => {
+            const name = document.getElementById('workerName').value.trim();
+            if (name) { push(ref(db, 'workers'), { name: name, status: 'active' }); document.getElementById('workerName').value = ""; }
+        };
+
+        window.clearAllData = () => { if (confirm("مسح كل شيء؟")) { remove(ref(db, 'workers')); remove(ref(db, 'attendance')); } };
 
         onValue(ref(db, 'workers'), (snapshot) => {
             const list = document.getElementById('workersList');
-            const trashList = document.getElementById('trashList');
-            list.innerHTML = ""; trashList.innerHTML = "";
+            list.innerHTML = "";
             snapshot.forEach((child) => {
-                const data = child.val();
                 const div = document.createElement('div');
                 div.className = 'worker-card';
-                div.innerText = data.name;
-                
-                if (data.status === 'active') {
-                    div.onclick = () => openWorkerMonths(child.key, data.name);
-                    list.appendChild(div);
-                } else {
-                    div.style.background = "#ccc";
-                    trashList.appendChild(div);
-                }
+                div.innerText = child.val().name;
+                div.onclick = () => openMonths(child.key, child.val().name);
+                list.appendChild(div);
             });
         });
 
-        window.saveData = function(workerId, monthIdx, day, type, val) {
-            update(ref(db, `attendance/${workerId}/${monthIdx}/${day}`), { [type]: val });
-        };
-
-        window.moveWorkerToTrash = function(workerId) {
-            if(confirm("نقل الموظف لسلة المهملات؟")) {
-                update(ref(db, `workers/${workerId}`), { status: 'trash' });
-                showScreen('screen-workers');
-            }
-        };
-    </script>
-
-    <style>
-        body { background-color: #4a0000; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; text-align: center; }
-        .i-can-bg { font-size: 120px; font-weight: bold; color: rgba(255, 255, 255, 0.03); position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; pointer-events: none; }
-        .container { width: 90%; max-width: 800px; background: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 20px; backdrop-filter: blur(15px); margin: 50px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        input { padding: 12px; border-radius: 8px; border: none; margin: 10px; width: 70%; font-size: 16px; }
-        .worker-card { background: white; color: #4a0000; padding: 15px; margin: 10px; border-radius: 12px; cursor: pointer; display: inline-block; width: 140px; font-weight: bold; transition: 0.3s; }
-        .worker-card:hover { transform: scale(1.05); }
-        .day-row { display: flex; justify-content: space-around; background: white; color: #333; margin: 5px 0; padding: 10px; border-radius: 8px; align-items: center; }
-        .day-row input { width: 80px; margin: 0; background: #eee; font-size: 14px; }
-        .hidden { display: none; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; }
-        .btn-green { background: #28a745; color: white; }
-        .btn-red { background: #dc3545; color: white; }
-        .months-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
-        .month-btn { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; cursor: pointer; }
-        .admin-section { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 40px; padding-top: 20px; }
-    </style>
-</head>
-<body>
-
-    <div class="i-can-bg">I CAN</div>
-
-    <div id="screen-workers" class="container">
-        <h1>إضافة عامل جديد</h1>
-        <input type="text" id="workerName" placeholder="اكتب اسم العامل...">
-        <button class="btn btn-green" onclick="addWorker()">إضافة</button>
-        <div id="workersList" style="margin-top:20px;"></div>
-
-        <div class="admin-section">
-            <button class="btn" style="background: #666; color: white;" onclick="toggleTrash()">إظهار/إخفاء سلة المهملات</button>
-            <div id="trashContainer" class="hidden">
-                <h3>سلة المهملات (Children Trash)</h3>
-                <div id="trashList"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="screen-months" class="container hidden">
-        <h2 id="currentWorkerName" style="color: #ff4d4d;"></h2>
-        <div class="months-grid" id="monthsGrid"></div>
-        <hr>
-        <button class="btn btn-red" id="deleteBtn">نقل العامل لسلة المهملات</button>
-        <button class="btn" onclick="showScreen('screen-workers')">رجوع للرئيسية</button>
-    </div>
-
-    <div id="screen-days" class="container hidden">
-        <h2 id="currentMonthTitle"></h2>
-        <div id="daysList" style="max-height: 400px; overflow-y: auto;"></div>
-        <button class="btn btn-green" onclick="alert('يتم الحفظ تلقائياً في السحاب!')">تم الحفظ</button>
-        <button class="btn" onclick="showScreen('screen-months')">رجوع للشهور</button>
-    </div>
-
-    <script>
-        const monthsNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-        let currentWID = "";
-
-        function showScreen(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function toggleTrash() {
-            document.getElementById('trashContainer').classList.toggle('hidden');
-        }
-
-        function openWorkerMonths(id, name) {
-            currentWID = id;
+        window.openMonths = (id, name) => {
+            currentWorkerId = id;
             document.getElementById('currentWorkerName').innerText = name;
-            document.getElementById('deleteBtn').onclick = () => moveWorkerToTrash(id);
             const grid = document.getElementById('monthsGrid');
             grid.innerHTML = "";
-            monthsNames.forEach((m, i) => {
+            ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"].forEach((m, i) => {
                 let div = document.createElement('div');
                 div.className = 'month-btn';
                 div.innerText = m;
@@ -142,28 +164,67 @@
                 grid.appendChild(div);
             });
             showScreen('screen-months');
-        }
+        };
 
-        function loadDays(wid, mName, mIdx) {
+        window.recordTimestamp = (wid, mIdx, day, type) => {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            let delay = 0; let early = 0;
+            if (type === 'in') {
+                const limit = new Date(); limit.setHours(8, 30, 0);
+                if (now > limit) delay = Math.floor((now - limit) / 60000);
+                update(ref(db, `attendance/${wid}/${mIdx}/${day}`), { in: timeStr, delay: delay });
+            } else {
+                const limit = new Date(); limit.setHours(16, 30, 0);
+                if (now < limit) early = Math.floor((limit - now) / 60000);
+                update(ref(db, `attendance/${wid}/${mIdx}/${day}`), { out: timeStr, early: early });
+            }
+            loadDays(wid, document.getElementById('currentMonthTitle').innerText.split(' ')[2], mIdx);
+        };
+
+        window.loadDays = (wid, mName, mIdx) => {
+            currentMonthIdx = mIdx;
             document.getElementById('currentMonthTitle').innerText = "سجل شهر " + mName;
             const list = document.getElementById('daysList');
-            list.innerHTML = "";
-            for (let i = 1; i <= 31; i++) {
-                let d = new Date(2026, mIdx - 1, i);
-                if (d.getMonth() + 1 !== mIdx) break; 
-                if (d.getDay() !== 5 && d.getDay() !== 6) { // استثناء الجمعة والسبت
-                    let row = document.createElement('div');
-                    row.className = 'day-row';
-                    row.innerHTML = `
-                        <strong>يوم ${i}</strong>
-                        <div>حضور <input type="text" onchange="saveData('${wid}',${mIdx},${i},'in',this.value)" placeholder=". . ."></div>
-                        <div>انصراف <input type="text" onchange="saveData('${wid}',${mIdx},${i},'out',this.value)" placeholder=". . ."></div>
-                    `;
-                    list.appendChild(row);
+            onValue(ref(db, `attendance/${wid}/${mIdx}`), (snapshot) => {
+                const saved = snapshot.val() || {};
+                list.innerHTML = "";
+                for (let i = 1; i <= 31; i++) {
+                    let d = new Date(2026, mIdx - 1, i);
+                    if (d.getMonth() + 1 !== mIdx) break;
+                    if (d.getDay() !== 5 && d.getDay() !== 6) {
+                        const dData = saved[i] || {};
+                        const row = document.createElement('div');
+                        row.className = 'day-row';
+                        row.innerHTML = `
+                            <span>${i}</span>
+                            <div class="touch-box" onclick="recordTimestamp('${wid}',${mIdx},${i},'in')">${dData.in || 'تسجيل'}</div>
+                            <div class="touch-box" onclick="recordTimestamp('${wid}',${mIdx},${i},'out')">${dData.out || 'تسجيل'}</div>
+                            <div class="stat-view">${dData.delay || 0} د</div>
+                            <div class="stat-view" style="color:#f57c00">${dData.early || 0} د</div>
+                        `;
+                        list.appendChild(row);
+                    }
                 }
-            }
+            }, { onlyOnce: true });
             showScreen('screen-days');
-        }
+        };
+
+        // دالة إصدار التقرير وحساب الإجمالي
+        window.generateReport = () => {
+            onValue(ref(db, `attendance/${currentWorkerId}/${currentMonthIdx}`), (snapshot) => {
+                const data = snapshot.val() || {};
+                let totalDelay = 0;
+                let totalEarly = 0;
+                for (let day in data) {
+                    totalDelay += (data[day].delay || 0);
+                    totalEarly += (data[day].early || 0);
+                }
+                document.getElementById('totalDelay').innerText = totalDelay;
+                document.getElementById('totalEarly').innerText = totalEarly;
+                document.getElementById('reportResult').classList.remove('hidden');
+            }, { onlyOnce: true });
+        };
     </script>
 </body>
 </html>
