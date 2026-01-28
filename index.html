@@ -3,185 +3,887 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I CAN - النظام الأمني المتكامل</title>
+    <title>نظام I CAN - الحي السابع التجمع الأول</title>
     <style>
-        body { background: linear-gradient(135deg, #004d40, #002f6c); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; text-align: center; min-height: 100vh; }
-        .container { width: 95%; max-width: 900px; background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 20px; backdrop-filter: blur(15px); margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .worker-card { background: white; color: #002f6c; padding: 15px; margin: 10px; border-radius: 12px; cursor: pointer; display: inline-block; width: 140px; font-weight: bold; }
-        .day-row { display: grid; grid-template-columns: 0.5fr 1.2fr 1.2fr 0.8fr 0.8fr 0.8fr; gap: 8px; background: rgba(255, 255, 255, 0.95); color: #333; margin: 5px 0; padding: 10px; border-radius: 8px; align-items: center; }
-        .touch-btn { background: #007bff; color: white; padding: 8px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; font-size: 11px; }
-        .locked { background: #ccc !important; cursor: not-allowed; opacity: 0.5; }
-        .hidden { display: none; }
-        input { padding: 10px; border-radius: 8px; border: none; text-align: center; margin: 5px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .mgr-btn { background: #ffc107; color: black; margin-top: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #004d40, #002f6c);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .i-can-bg {
+            font-size: 120px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* الشاشة الرئيسية */
+        .main-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 48px;
+            margin-bottom: 60px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .main-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .main-btn {
+            padding: 25px;
+            font-size: 28px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .main-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, #9c27b0, #673ab7);
+            color: white;
+        }
+
+        .specialist-btn {
+            background: linear-gradient(135deg, #2196f3, #00bcd4);
+            color: white;
+        }
+
+        /* شاشة المدير */
+        .screen {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            margin: 20px auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 900px;
+            width: 95%;
+        }
+
+        .screen-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .password-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-field {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            width: 80%;
+            max-width: 300px;
+            font-size: 20px;
+            text-align: center;
+            outline: none;
+            margin: 15px 0;
+            background: white;
+            color: #333;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #2E7D32, #1B5E20);
+        }
+
+        /* شاشة الأخصائي */
+        .month-selection {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .month-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .month-btn {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .month-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .current-month {
+            background: rgba(255, 255, 0, 0.3);
+            border: 2px solid yellow;
+        }
+
+        /* شاشة الحضور */
+        .attendance-header {
+            background: #002f6c;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: 0.5fr 1.5fr 1.5fr 1fr 1fr 1fr;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .today-row {
+            border: 3px solid #28a745;
+            background: #f8fff8;
+        }
+
+        .past-day {
+            opacity: 0.5;
+            background: #f0f0f0;
+        }
+
+        .future-day {
+            opacity: 0.3;
+            background: #e0e0e0;
+        }
+
+        .one-click-btn {
+            background: linear-gradient(45deg, #FF9800, #FF5722);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .one-click-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .one-click-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .record-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .record-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .stat-box {
+            background: #eee;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .overtime-box {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .back-btn {
+            background: #555;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        .back-btn:hover {
+            background: #444;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #ffeaa7;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #bee5eb;
+        }
+
+        /* مخفي */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <div id="screen-login" class="container">
-        <h1>نظام I CAN</h1>
-        <p>اختر اسمك للدخول (الحي السابع)</p>
-        <div id="loginList"></div>
-        <button class="btn mgr-btn" onclick="checkManager()">واجهة المدير ⚙️</button>
-    </div>
+    <div class="i-can-bg">I CAN</div>
 
-    <div id="screen-admin" class="container hidden">
-        <h2>لوحة تحكم المدير</h2>
-        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
-            <input type="text" id="newWorkerName" placeholder="اسم الأخصائي الجديد">
-            <button class="btn" style="background: #28a745; color: white;" onclick="addWorker()">إضافة</button>
+    <!-- الشاشة الرئيسية -->
+    <div id="mainScreen" class="main-screen">
+        <h1 class="title">نظام I CAN</h1>
+        <div class="main-buttons">
+            <button class="main-btn admin-btn" onclick="showScreen('adminLoginScreen')">
+                👑 الإدارة
+            </button>
+            <button class="main-btn specialist-btn" onclick="showScreen('specialistMonthScreen')">
+                👤 الأخصائي
+            </button>
         </div>
-        <div id="adminWorkerList" style="margin-top: 20px;"></div>
-        <button class="btn" style="background: #666; color: white; margin-top: 20px;" onclick="showScreen('screen-login')">خروج</button>
     </div>
 
-    <div id="screen-days" class="container hidden">
-        <h2 id="currentMonthTitle"></h2>
-        <div class="day-row" style="background: #002f6c; color: white; font-weight: bold; font-size: 11px;">
-            <span>يوم</span><span>حضور</span><span>انصراف</span><span>تأخير</span><span>مبكر</span><span>إضافي</span>
+    <!-- شاشة دخول المدير -->
+    <div id="adminLoginScreen" class="screen hidden">
+        <h2 class="screen-title">👑 دخول المدير</h2>
+        <div class="password-box">
+            <p>أدخل كود المدير للدخول:</p>
+            <input type="password" id="adminPassword" class="input-field" placeholder="1234">
+            <br>
+            <button class="action-btn" onclick="loginAdmin()">دخول</button>
+            <p style="margin-top: 15px; color: #ccc; font-size: 14px;">اضغط Enter بعد كتابة الكود</p>
         </div>
-        <div id="daysList"></div>
-        <button class="btn" style="background: #28a745; color: white; width: 100%;" onclick="showScreen('screen-login')">تسجيل خروج</button>
+        
+        <!-- لوحة تحكم المدير -->
+        <div id="adminControlPanel" class="hidden">
+            <h3>👨‍💼 لوحة تحكم المدير</h3>
+            
+            <div class="alert-box">
+                <strong>ملاحظة:</strong> لا يمكن للأخصائيين رؤية الرموز السرية.
+            </div>
+            
+            <div style="margin: 30px 0;">
+                <h4>إضافة أخصائي جديد:</h4>
+                <input type="text" id="newSpecialistName" class="input-field" placeholder="اسم الأخصائي">
+                <br>
+                <button class="action-btn" onclick="addSpecialist()">➕ إضافة أخصائي</button>
+            </div>
+            
+            <div style="margin: 30px 0;">
+                <h4>قائمة الأخصائيين والرموز السرية:</h4>
+                <div id="specialistsList" style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;"></div>
+            </div>
+            
+            <button class="action-btn" style="background: #17a2b8;" onclick="viewReports()">📊 عرض التقارير</button>
+            <br><br>
+            <button class="back-btn" onclick="showScreen('mainScreen')">🔙 الرجوع للشاشة الرئيسية</button>
+        </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <!-- شاشة اختيار شهر الأخصائي -->
+    <div id="specialistMonthScreen" class="screen hidden">
+        <h2 class="screen-title">👤 دخول الأخصائي</h2>
+        
+        <div class="month-selection">
+            <h3>📅 اختر الشهر الحالي:</h3>
+            <div class="alert-box">
+                <strong>⚠️ تنبيه:</strong> يمكنك التسجيل في اليوم الحالي فقط.
+            </div>
+            <div class="month-buttons" id="monthButtons">
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+            </div>
+        </div>
+        
+        <div id="passwordScreen" class="password-box hidden">
+            <h3>🔒 أدخل الرمز السري:</h3>
+            <input type="password" id="specialistPassword" class="input-field" placeholder="أدخل الرمز السري">
+            <br>
+            <button class="action-btn" onclick="verifySpecialistPassword()">دخول</button>
+            <div class="info-box">
+                <strong>💡 تلميح:</strong> الرمز السري هو اسمك + 1
+            </div>
+        </div>
+        
+        <button class="back-btn" onclick="showScreen('mainScreen')">🔙 الرجوع للشاشة الرئيسية</button>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC3dczppftLkPSpsMVsb3GsryyYqDjGgEo",
-            authDomain: "ican-5dfb5.firebaseapp.com",
-            projectId: "ican-5dfb5",
-            storageBucket: "ican-5dfb5.firebasestorage.app",
-            messagingSenderId: "471479335646",
-            appId: "1:471479335646:web:bdb0adacf9aae88afee04f"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    <!-- شاشة الحضور اليومية -->
+    <div id="attendanceScreen" class="screen hidden">
+        <div class="attendance-header" id="currentMonthHeader">
+            📅 شهر يناير
+        </div>
+        
+        <div class="info-box">
+            <strong>📝 التعليمات:</strong> 
+            <br>• يمكنك التسجيل في اليوم الحالي فقط
+            <br>• اضغط على زر ONE CLICK لتسجيل الحضور والانصراف معاً
+        </div>
+        
+        <div style="background: white; color: #002f6c; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+            <h3>👤 الأخصائي: <span id="currentSpecialistName">أحمد</span></h3>
+            <p>📅 اليوم: <span id="currentDateDisplay"></span></p>
+        </div>
+        
+        <!-- زر ONE CLICK -->
+        <button id="oneClickBtn" class="one-click-btn" onclick="oneClickRecord()">
+            🚀 ONE CLICK - تسجيل الحضور والانصراف معاً
+        </button>
+        
+        <!-- شبكة الحضور -->
+        <div class="attendance-grid" style="background: #002f6c; color: white;">
+            <span>اليوم</span>
+            <span>الحضور (8:30)</span>
+            <span>الانصراف (4:30)</span>
+            <span>تأخير</span>
+            <span>انصراف مبكر</span>
+            <span>إضافي</span>
+        </div>
+        
+        <div id="daysContainer"></div>
+        
+        <button class="back-btn" onclick="showScreen('specialistMonthScreen')">🔙 الرجوع لاختيار الشهر</button>
+    </div>
 
-        let activeUserId = "";
-        let activeUserName = "";
+    <script>
+        // بيانات التطبيق
+        let specialists = JSON.parse(localStorage.getItem('ican_specialists')) || [
+            {id: 1, name: "أحمد", password: "أحمد1"},
+            {id: 2, name: "محمد", password: "محمد1"},
+            {id: 3, name: "علي", password: "علي1"}
+        ];
+        
+        let attendance = JSON.parse(localStorage.getItem('ican_attendance')) || {};
+        let currentMonth = null;
+        let currentMonthName = "";
+        let currentSpecialist = null;
+        let today = new Date();
+        let currentDay = today.getDate();
+        let currentMonthNum = today.getMonth() + 1;
 
-        // موقع الحي السابع التجمع الأول (إحداثيات تقريبية)
-        const TARGET_LAT = 30.0575; 
-        const TARGET_LNG = 31.4650;
-
-        window.showScreen = (id) => {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        };
-
-        window.checkManager = () => {
-            if(prompt("أدخل كلمة سر المدير:") === "123") showScreen('screen-admin');
-            else alert("خطأ في كلمة السر!");
-        };
-
-        window.addWorker = () => {
-            const name = document.getElementById('newWorkerName').value.trim();
-            if(name) { push(ref(db, 'workers'), { name }); document.getElementById('newWorkerName').value = ""; }
-        };
-
-        // حذف الموظف ونقله لسلة المهملات (Trash) كما طلبتِ للمدراء
-        window.deleteWorker = (id, name) => {
-            if(confirm(`هل تريد حذف ${name} ونقله للمهملات؟`)) {
-                set(ref(db, `trash/${id}`), { name, deletedAt: new Date().toISOString() });
-                remove(ref(db, `workers/${id}`));
+        // دالة عرض الشاشات
+        function showScreen(screenId) {
+            // إخفاء جميع الشاشات
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('adminLoginScreen').classList.add('hidden');
+            document.getElementById('specialistMonthScreen').classList.add('hidden');
+            document.getElementById('attendanceScreen').classList.add('hidden');
+            
+            // إظهار الشاشة المطلوبة
+            document.getElementById(screenId).classList.remove('hidden');
+            
+            // إعادة تعيين الحقول
+            if (screenId === 'mainScreen') {
+                resetAllFields();
             }
-        };
+            
+            // تحميل البيانات عند الحاجة
+            if (screenId === 'specialistMonthScreen') {
+                loadMonthButtons();
+            }
+        }
 
-        onValue(ref(db, 'workers'), (snap) => {
-            const list = document.getElementById('loginList');
-            const adminList = document.getElementById('adminWorkerList');
-            list.innerHTML = ""; adminList.innerHTML = "";
-            snap.forEach(child => {
-                const id = child.key; const name = child.val().name;
-                // قائمة الدخول للأخصائيين
-                let div = document.createElement('div'); div.className = "worker-card"; div.innerText = name;
-                div.onclick = () => loginWorker(id, name);
+        // إعادة تعيين الحقول
+        function resetAllFields() {
+            document.getElementById('adminPassword').value = "";
+            document.getElementById('specialistPassword').value = "";
+            document.getElementById('newSpecialistName').value = "";
+            currentMonth = null;
+            currentSpecialist = null;
+        }
+
+        // 1. دخول المدير بكود 1234
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === "1234") {
+                document.getElementById('adminControlPanel').classList.remove('hidden');
+                loadSpecialistsList();
+            } else {
+                alert("❌ كود المدير غير صحيح! حاول مرة أخرى.");
+                document.getElementById('adminPassword').value = "";
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        // 2. تحميل قائمة الأخصائيين
+        function loadSpecialistsList() {
+            const list = document.getElementById('specialistsList');
+            list.innerHTML = "";
+            
+            if (specialists.length === 0) {
+                list.innerHTML = '<p style="color: #666;">لا يوجد أخصائيين مسجلين</p>';
+                return;
+            }
+            
+            specialists.forEach(specialist => {
+                const div = document.createElement('div');
+                div.style.background = "white";
+                div.style.color = "#002f6c";
+                div.style.padding = "10px";
+                div.style.margin = "5px";
+                div.style.borderRadius = "8px";
+                div.innerHTML = `
+                    <strong>👤 ${specialist.name}</strong>
+                    <br><small>🔑 الرمز السري: ${specialist.password}</small>
+                `;
                 list.appendChild(div);
-                // قائمة الإدارة (اطلاع وحذف)
-                let admDiv = document.createElement('div');
-                admDiv.style = "background:white; color:black; padding:10px; margin:5px; border-radius:8px; display:flex; justify-content:space-between;";
-                admDiv.innerHTML = `<span>${name}</span> <button onclick="deleteWorker('${id}','${name}')" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">حذف 🗑️</button>`;
-                adminList.appendChild(admDiv);
+            });
+        }
+
+        // 3. إضافة أخصائي جديد
+        function addSpecialist() {
+            const nameInput = document.getElementById('newSpecialistName');
+            const name = nameInput.value.trim();
+            
+            if (name) {
+                const newId = specialists.length > 0 ? 
+                    Math.max(...specialists.map(s => s.id)) + 1 : 1;
+                
+                const password = name + "1";
+                
+                specialists.push({
+                    id: newId,
+                    name: name,
+                    password: password
+                });
+                
+                localStorage.setItem('ican_specialists', JSON.stringify(specialists));
+                nameInput.value = "";
+                loadSpecialistsList();
+                
+                alert(`✅ تم إضافة الأخصائي: ${name}\n🔑 الرمز السري: ${password}`);
+            } else {
+                alert("⚠️ الرجاء إدخال اسم الأخصائي!");
+            }
+        }
+
+        // 4. عرض التقارير
+        function viewReports() {
+            let reports = "📊 تقارير جميع الأخصائيين:\n\n";
+            
+            specialists.forEach(specialist => {
+                const specData = attendance[specialist.id] || {};
+                let totalDelay = 0;
+                let totalEarly = 0;
+                let totalOvertime = 0;
+                
+                // حساب المجاميع
+                Object.values(specData).forEach(month => {
+                    Object.values(month).forEach(day => {
+                        if (day && typeof day === 'object') {
+                            totalDelay += day.delay || 0;
+                            totalEarly += day.early || 0;
+                            totalOvertime += day.overtime || 0;
+                        }
+                    });
+                });
+                
+                reports += `👤 ${specialist.name}:\n`;
+                reports += `   التأخير: ${totalDelay} دقيقة\n`;
+                reports += `   الانصراف المبكر: ${totalEarly} دقيقة\n`;
+                reports += `   الإضافي: ${totalOvertime} دقيقة\n`;
+                reports += `   الرمز السري: ${specialist.password}\n\n`;
+            });
+            
+            alert(reports);
+        }
+
+        // 5. تحميل أزرار الشهور مع تمييز الشهر الحالي
+        function loadMonthButtons() {
+            const monthButtons = document.getElementById('monthButtons');
+            monthButtons.innerHTML = "";
+            
+            const months = [
+                "يناير", "فبراير", "مارس", "أبريل", 
+                "مايو", "يونيو", "يوليو", "أغسطس", 
+                "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+            ];
+            
+            months.forEach((monthName, index) => {
+                const monthNum = index + 1;
+                const btn = document.createElement('div');
+                btn.className = `month-btn`;
+                
+                // تمييز الشهر الحالي
+                if (monthNum === currentMonthNum) {
+                    btn.classList.add('current-month');
+                    btn.style.background = "rgba(255, 255, 0, 0.3)";
+                    btn.style.border = "2px solid yellow";
+                    btn.style.cursor = "pointer";
+                    btn.onclick = () => {
+                        currentMonth = currentMonthNum;
+                        currentMonthName = monthName;
+                        document.getElementById('passwordScreen').classList.remove('hidden');
+                        document.getElementById('specialistPassword').focus();
+                    };
+                } else {
+                    btn.style.opacity = "0.5";
+                    btn.style.cursor = "not-allowed";
+                    btn.style.background = "rgba(255, 255, 255, 0.1)";
+                    btn.title = "يمكنك التسجيل في الشهر الحالي فقط";
+                }
+                
+                btn.textContent = monthName;
+                monthButtons.appendChild(btn);
+            });
+        }
+
+        // 6. التحقق من الرمز السري للأخصائي
+        function verifySpecialistPassword() {
+            const password = document.getElementById('specialistPassword').value.trim();
+            
+            // البحث عن الأخصائي المناسب
+            const specialist = specialists.find(s => s.password === password);
+            
+            if (specialist) {
+                currentSpecialist = specialist;
+                showAttendanceScreen();
+            } else {
+                alert("❌ الرمز السري غير صحيح!\nالرمز السري هو: اسمك + 1\nمثال: إذا كان اسمك أحمد، الرمز هو: أحمد1");
+                document.getElementById('specialistPassword').value = "";
+                document.getElementById('specialistPassword').focus();
+            }
+        }
+
+        // 7. عرض شاشة الحضور
+        function showAttendanceScreen() {
+            showScreen('attendanceScreen');
+            
+            // تحديث العنوان
+            document.getElementById('currentMonthHeader').textContent = `📅 شهر ${currentMonthName}`;
+            document.getElementById('currentSpecialistName').textContent = currentSpecialist.name;
+            
+            // تحديث تاريخ اليوم
+            const todayStr = `${currentDay} ${currentMonthName} 2026`;
+            document.getElementById('currentDateDisplay').textContent = todayStr;
+            
+            // تحميل أيام الشهر
+            loadMonthDays();
+        }
+
+        // 8. تحميل أيام الشهر
+        function loadMonthDays() {
+            const container = document.getElementById('daysContainer');
+            container.innerHTML = "";
+            
+            // سنة افتراضية 2026 للاختبار
+            const year = 2026;
+            
+            for (let day = 1; day <= 31; day++) {
+                const date = new Date(year, currentMonth - 1, day);
+                
+                // التوقف إذا انتهى الشهر
+                if (date.getMonth() + 1 !== currentMonth) break;
+                
+                // التحقق إذا كان عطلة (الجمعة أو السبت)
+                const isWeekend = date.getDay() === 5 || date.getDay() === 6;
+                
+                // التحقق إذا كان اليوم الحالي
+                const isToday = (day === currentDay);
+                
+                // التحقق إذا كان يوم ماضٍ
+                const isPast = (day < currentDay);
+                
+                // التحقق إذا كان يوم مستقبلي
+                const isFuture = (day > currentDay);
+                
+                // جلب بيانات اليوم
+                const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[day] || {};
+                
+                // إنشاء صف اليوم
+                const dayRow = document.createElement('div');
+                
+                // تحديد فئة الصف بناءً على نوع اليوم
+                if (isToday) {
+                    dayRow.className = 'attendance-grid today-row';
+                } else if (isFuture) {
+                    dayRow.className = 'attendance-grid future-day';
+                } else if (isPast) {
+                    dayRow.className = 'attendance-grid past-day';
+                } else {
+                    dayRow.className = 'attendance-grid';
+                }
+                
+                // إذا كان اليوم الحالي
+                if (isToday) {
+                    dayRow.innerHTML = `
+                        <span>${day} ⭐</span>
+                        <button class="record-btn" onclick="recordAttendance(${day}, 'in')" ${dayData.in ? 'disabled' : ''}>
+                            ${dayData.in || 'تسجيل الحضور'}
+                        </button>
+                        <button class="record-btn" onclick="recordAttendance(${day}, 'out')" ${dayData.out ? 'disabled' : ''}>
+                            ${dayData.out || 'تسجيل الانصراف'}
+                        </button>
+                        <div class="stat-box">${dayData.delay || 0} د</div>
+                        <div class="stat-box">${dayData.early || 0} د</div>
+                        <div class="stat-box overtime-box">${dayData.overtime ? '+' + dayData.overtime + ' د' : '0'}</div>
+                    `;
+                }
+                // إذا كان يوم ماضٍ
+                else if (isPast) {
+                    dayRow.innerHTML = `
+                        <span>${day} 📅</span>
+                        <div style="background:#e0e0e0; padding:10px; border-radius:8px; color:#666;">
+                            ${dayData.in || 'لم يسجل'}
+                        </div>
+                        <div style="background:#e0e0e0; padding:10px; border-radius:8px; color:#666;">
+                            ${dayData.out || 'لم يسجل'}
+                        </div>
+                        <div class="stat-box">${dayData.delay || 0} د</div>
+                        <div class="stat-box">${dayData.early || 0} د</div>
+                        <div class="stat-box">${dayData.overtime ? '+' + dayData.overtime + ' د' : '0'}</div>
+                    `;
+                }
+                // إذا كان يوم مستقبلي
+                else if (isFuture) {
+                    dayRow.innerHTML = `
+                        <span>${day} 🔒</span>
+                        <div style="background:#ccc; padding:10px; border-radius:8px; color:#666;">مقفل</div>
+                        <div style="background:#ccc; padding:10px; border-radius:8px; color:#666;">مقفل</div>
+                        <div class="stat-box">0</div>
+                        <div class="stat-box">0</div>
+                        <div class="stat-box">0</div>
+                    `;
+                }
+                // إذا كان عطلة
+                else if (isWeekend) {
+                    dayRow.innerHTML = `
+                        <span>${day} 🏖️</span>
+                        <div style="background:#ffeb3b; padding:10px; border-radius:8px; color:#856404;">عطلة</div>
+                        <div style="background:#ffeb3b; padding:10px; border-radius:8px; color:#856404;">عطلة</div>
+                        <div class="stat-box">-</div>
+                        <div class="stat-box">-</div>
+                        <div class="stat-box">-</div>
+                    `;
+                }
+                
+                container.appendChild(dayRow);
+            }
+            
+            // تحديث زر ONE CLICK
+            updateOneClickButton();
+        }
+
+        // 9. تحديث زر ONE CLICK بناءً على حالة التسجيل
+        function updateOneClickButton() {
+            const oneClickBtn = document.getElementById('oneClickBtn');
+            const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
+            
+            // إذا تم تسجيل الحضور والانصراف مسبقاً
+            if (dayData.in && dayData.out) {
+                oneClickBtn.innerHTML = "✅ تم التسجيل مسبقاً";
+                oneClickBtn.disabled = true;
+            } 
+            // إذا تم تسجيل الحضور فقط
+            else if (dayData.in && !dayData.out) {
+                oneClickBtn.innerHTML = "🚀 ONE CLICK - تسجيل الانصراف فقط";
+                oneClickBtn.disabled = false;
+                oneClickBtn.onclick = () => recordAttendance(currentDay, 'out');
+            }
+            // إذا لم يتم تسجيل أي شيء
+            else {
+                oneClickBtn.innerHTML = "🚀 ONE CLICK - تسجيل الحضور والانصراف معاً";
+                oneClickBtn.disabled = false;
+                oneClickBtn.onclick = oneClickRecord;
+            }
+        }
+
+        // 10. زر ONE CLICK لتسجيل الحضور والانصراف معاً
+        function oneClickRecord() {
+            if (!currentSpecialist || !currentMonth) return;
+            
+            // تسجيل الحضور أولاً
+            recordAttendance(currentDay, 'in');
+            
+            // بعد ثانيتين، تسجيل الانصراف
+            setTimeout(() => {
+                recordAttendance(currentDay, 'out');
+                alert("🎉 تم التسجيل بنجاح! تم تسجيل الحضور والانصراف معاً.");
+            }, 2000);
+        }
+
+        // 11. تسجيل الحضور أو الانصراف
+        function recordAttendance(day, type) {
+            if (!currentSpecialist || !currentMonth) return false;
+            
+            // التحقق أن اليوم هو اليوم الحالي
+            if (day !== currentDay) {
+                alert("⚠️ يمكنك التسجيل في اليوم الحالي فقط!");
+                return false;
+            }
+            
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                          now.getMinutes().toString().padStart(2, '0');
+            
+            let delay = 0;
+            let early = 0;
+            let overtime = 0;
+            
+            if (type === 'in') {
+                // حساب التأخير بعد 8:30
+                const limit = new Date();
+                limit.setHours(8, 30, 0, 0);
+                if (now > limit) {
+                    delay = Math.floor((now - limit) / 60000);
+                }
+            } else if (type === 'out') {
+                // حساب الانصراف المبكر قبل 4:30
+                const earlyLimit = new Date();
+                earlyLimit.setHours(16, 30, 0, 0);
+                
+                if (now < earlyLimit) {
+                    early = Math.floor((earlyLimit - now) / 60000);
+                } else if (now > earlyLimit) {
+                    // حساب الإضافي بعد 4:30
+                    overtime = Math.floor((now - earlyLimit) / 60000);
+                }
+            }
+            
+            // حفظ البيانات
+            if (!attendance[currentSpecialist.id]) {
+                attendance[currentSpecialist.id] = {};
+            }
+            if (!attendance[currentSpecialist.id][currentMonth]) {
+                attendance[currentSpecialist.id][currentMonth] = {};
+            }
+            
+            attendance[currentSpecialist.id][currentMonth][day] = {
+                ...attendance[currentSpecialist.id][currentMonth][day],
+                [type]: timeStr,
+                delay: type === 'in' ? delay : (attendance[currentSpecialist.id][currentMonth][day]?.delay || 0),
+                early: type === 'out' ? early : (attendance[currentSpecialist.id][currentMonth][day]?.early || 0),
+                overtime: type === 'out' ? overtime : (attendance[currentSpecialist.id][currentMonth][day]?.overtime || 0)
+            };
+            
+            localStorage.setItem('ican_attendance', JSON.stringify(attendance));
+            
+            // إعادة تحميل الشهر
+            loadMonthDays();
+            
+            // رسالة تأكيد
+            let message = `✅ تم تسجيل ${type === 'in' ? 'الحضور' : 'الانصراف'} الساعة: ${timeStr}`;
+            if (delay > 0) message += `\n⏰ تأخير: ${delay} دقيقة`;
+            if (early > 0) message += `\n⚠️ انصراف مبكر: ${early} دقيقة`;
+            if (overtime > 0) message += `\n➕ إضافي: ${overtime} دقيقة`;
+            
+            alert(message);
+            
+            return true;
+        }
+
+        // تهيئة التطبيق عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            // إضافة مستمعات للأزرار الرئيسية
+            document.querySelector('.admin-btn').addEventListener('click', function() {
+                showScreen('adminLoginScreen');
+            });
+            
+            document.querySelector('.specialist-btn').addEventListener('click', function() {
+                showScreen('specialistMonthScreen');
+            });
+            
+            // إضافة مستمع للزر Enter في حقل كود المدير
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginAdmin();
+                }
+            });
+            
+            // إضافة مستمع للزر Enter في حقل كود الأخصائي
+            document.getElementById('specialistPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifySpecialistPassword();
+                }
             });
         });
-
-        window.loginWorker = (id, name) => {
-            const pass = prompt(`أدخل الرمز السري للأخصائي (${name}):`);
-            const secret = "م" + name.substring(1); // تغيير أول حرف لميم
-            if(pass === secret) {
-                activeUserId = id; activeUserName = name;
-                loadDays();
-            } else { alert("رمز سري خاطئ!"); }
-        };
-
-        window.loadDays = () => {
-            const today = new Date();
-            const mIdx = today.getMonth() + 1;
-            const dayNum = today.getDate();
-            document.getElementById('currentMonthTitle').innerText = `سجل ${activeUserName} - شهر ${mIdx}`;
-            
-            onValue(ref(db, `attendance/${activeUserId}/${mIdx}`), (snap) => {
-                const saved = snap.val() || {};
-                const list = document.getElementById('daysList');
-                list.innerHTML = "";
-                for(let i=1; i<=31; i++) {
-                    let d = new Date(2026, mIdx-1, i);
-                    if(d.getMonth()+1 !== mIdx || d.getDay() === 5 || d.getDay() === 6) continue;
-                    
-                    const isToday = (i === dayNum);
-                    const dData = saved[i] || {};
-                    const row = document.createElement('div');
-                    row.className = "day-row";
-                    row.innerHTML = `
-                        <span>${i}</span>
-                        <button class="touch-btn ${!isToday ? 'locked' : ''}" onclick="isToday && checkLocation('in', ${i})">${dData.in || 'حضور'}</button>
-                        <button class="touch-btn ${!isToday ? 'locked' : ''}" onclick="isToday && checkLocation('out', ${i})">${dData.out || 'انصراف'}</button>
-                        <div style="font-size:10px;">${dData.delay || 0}د</div>
-                        <div style="font-size:10px;">${dData.early || 0}د</div>
-                        <div style="font-size:10px; color:green">+${dData.extra || 0}د</div>
-                    `;
-                    list.appendChild(row);
-                }
-            }, { onlyOnce: true });
-            showScreen('screen-days');
-        };
-
-        window.checkLocation = (type, day) => {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                // حساب المسافة (تبسيطاً نتحقق من تقارب الإحداثيات)
-                const dist = Math.sqrt(Math.pow(lat - TARGET_LAT, 2) + Math.pow(lng - TARGET_LNG, 2));
-                if(dist < 0.01) { // نطاق الحي السابع تقريباً
-                    record(type, day);
-                } else {
-                    alert("عذراً، يجب أن تكون داخل مقر العمل (الحي السابع) لتسجيل البصمة!");
-                }
-            }, () => alert("يرجى تفعيل GPS للمتابعة"));
-        };
-
-        function record(type, day) {
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-            const mIdx = now.getMonth() + 1;
-            let updates = {};
-            if(type === 'in') {
-                const limit = new Date(); limit.setHours(8,30,0);
-                let delay = now > limit ? Math.floor((now-limit)/60000) : 0;
-                updates = { in: timeStr, delay: delay };
-            } else {
-                const limit = new Date(); limit.setHours(16,30,0);
-                let early = now < limit ? Math.floor((limit-now)/60000) : 0;
-                let extra = now > limit ? Math.floor((now-limit)/60000) : 0;
-                updates = { out: timeStr, early: early, extra: extra };
-            }
-            update(ref(db, `attendance/${activeUserId}/${mIdx}/${day}`), updates);
-            loadDays();
-        }
     </script>
 </body>
 </html>
-
