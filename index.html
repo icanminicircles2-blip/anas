@@ -245,7 +245,7 @@
         /* شاشة الحضور */
         .attendance-grid {
             display: grid;
-            grid-template-columns: 0.5fr 1.5fr 1.5fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 1fr 1fr 0.8fr 0.8fr 0.8fr;
             gap: 10px;
             background: rgba(255, 255, 255, 0.95);
             color: #333;
@@ -261,23 +261,49 @@
             background: #f8fff8;
         }
 
-        .one-click-btn {
+        /* زر ONE CLICK الرئيسي - كبير وفي الوسط */
+        .main-one-click-btn {
             background: linear-gradient(45deg, #FF9800, #FF5722);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
             border: none;
-            margin: 20px 0;
+            margin: 30px 0;
             width: 100%;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
-        .one-click-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .main-one-click-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #FF5722, #FF9800);
+        }
+
+        .main-one-click-btn:active {
+            transform: scale(0.98);
+        }
+
+        .one-click-icon {
+            font-size: 40px;
+            animation: pulse 2s infinite;
+        }
+
+        .one-click-title {
+            font-size: 28px;
+        }
+
+        .one-click-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
         }
 
         .record-btn {
@@ -314,7 +340,7 @@
             }
             
             .attendance-grid {
-                grid-template-columns: 0.5fr 1.2fr 1.2fr 0.8fr 0.8fr 0.8fr;
+                grid-template-columns: 0.5fr 0.9fr 0.9fr 0.7fr 0.7fr 0.7fr;
                 font-size: 14px;
                 padding: 8px;
                 gap: 5px;
@@ -330,6 +356,19 @@
                 left: 15px;
                 padding: 10px 20px;
                 font-size: 14px;
+            }
+            
+            .main-one-click-btn {
+                padding: 20px;
+                font-size: 20px;
+            }
+            
+            .one-click-icon {
+                font-size: 30px;
+            }
+            
+            .one-click-title {
+                font-size: 22px;
             }
         }
 
@@ -349,7 +388,7 @@
             }
             
             .attendance-grid {
-                grid-template-columns: 0.5fr 1fr 1fr 0.7fr 0.7fr 0.7fr;
+                grid-template-columns: 0.5fr 0.8fr 0.8fr 0.6fr 0.6fr 0.6fr;
                 font-size: 12px;
                 padding: 5px;
             }
@@ -365,6 +404,25 @@
                 padding: 8px 15px;
                 font-size: 12px;
             }
+            
+            .main-one-click-btn {
+                padding: 15px;
+                font-size: 18px;
+            }
+            
+            .one-click-icon {
+                font-size: 25px;
+            }
+            
+            .one-click-title {
+                font-size: 18px;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -482,9 +540,11 @@
                 <p>📅 اليوم: <span id="currentDateDisplay"></span></p>
             </div>
             
-            <!-- زر ONE CLICK -->
-            <button id="oneClickBtn" class="one-click-btn" onclick="oneClickRecord()">
-                🚀 ONE CLICK - تسجيل الحضور والانصراف معاً
+            <!-- زر ONE CLICK الرئيسي -->
+            <button id="mainOneClickBtn" class="main-one-click-btn" onclick="oneClickRecord()">
+                <div class="one-click-icon">🚀</div>
+                <div class="one-click-title">ONE CLICK التسجيل</div>
+                <div class="one-click-subtitle">انقر مرة واحدة لتسجيل الحضور والانصراف معاً</div>
             </button>
             
             <!-- شبكة الحضور -->
@@ -742,6 +802,7 @@
             document.getElementById('currentDateDisplay').textContent = todayStr;
             
             loadMonthDays();
+            updateOneClickButton();
         }
 
         // تحميل أيام الشهر
@@ -781,12 +842,12 @@
                 if (isToday) {
                     dayRow.innerHTML = `
                         <span>${day} ⭐</span>
-                        <button class="record-btn" onclick="recordAttendance(${day}, 'in')">
-                            ${dayData.in || 'تسجيل الحضور'}
-                        </button>
-                        <button class="record-btn" onclick="recordAttendance(${day}, 'out')">
-                            ${dayData.out || 'تسجيل الانصراف'}
-                        </button>
+                        <div style="background:#e0e0e0; padding:10px; border-radius:8px; color:#666;">
+                            ${dayData.in || 'لم يسجل'}
+                        </div>
+                        <div style="background:#e0e0e0; padding:10px; border-radius:8px; color:#666;">
+                            ${dayData.out || 'لم يسجل'}
+                        </div>
                         <div class="stat-box">${dayData.delay || 0} د</div>
                         <div class="stat-box">${dayData.early || 0} د</div>
                         <div class="stat-box" style="background: #ffc107;">${dayData.overtime ? '+' + dayData.overtime + ' د' : '0'}</div>
@@ -826,47 +887,101 @@
                 
                 container.appendChild(dayRow);
             }
-            
-            updateOneClickButton();
         }
 
         // تحديث زر ONE CLICK
         function updateOneClickButton() {
-            const oneClickBtn = document.getElementById('oneClickBtn');
+            const oneClickBtn = document.getElementById('mainOneClickBtn');
             const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
             
             if (dayData.in && dayData.out) {
-                oneClickBtn.innerHTML = "✅ تم التسجيل مسبقاً";
+                oneClickBtn.innerHTML = `
+                    <div class="one-click-icon">✅</div>
+                    <div class="one-click-title">تم التسجيل اليوم</div>
+                    <div class="one-click-subtitle">الحضور: ${dayData.in} | الانصراف: ${dayData.out}</div>
+                `;
                 oneClickBtn.disabled = true;
-                oneClickBtn.style.background = "#cccccc";
+                oneClickBtn.style.background = "#28a745";
+                oneClickBtn.onclick = null;
             } else if (dayData.in && !dayData.out) {
-                oneClickBtn.innerHTML = "🚀 ONE CLICK - تسجيل الانصراف فقط";
+                oneClickBtn.innerHTML = `
+                    <div class="one-click-icon">⏰</div>
+                    <div class="one-click-title">تسجيل الانصراف فقط</div>
+                    <div class="one-click-subtitle">تم تسجيل الحضور الساعة: ${dayData.in}</div>
+                `;
                 oneClickBtn.disabled = false;
-                oneClickBtn.style.background = "linear-gradient(45deg, #FF9800, #FF5722)";
+                oneClickBtn.style.background = "linear-gradient(45deg, #2196F3, #03A9F4)";
                 oneClickBtn.onclick = function() {
                     recordAttendance(currentDay, 'out');
                 };
             } else {
-                oneClickBtn.innerHTML = "🚀 ONE CLICK - تسجيل الحضور والانصراف معاً";
+                oneClickBtn.innerHTML = `
+                    <div class="one-click-icon">🚀</div>
+                    <div class="one-click-title">ONE CLICK التسجيل</div>
+                    <div class="one-click-subtitle">انقر مرة واحدة لتسجيل الحضور والانصراف معاً</div>
+                `;
                 oneClickBtn.disabled = false;
                 oneClickBtn.style.background = "linear-gradient(45deg, #FF9800, #FF5722)";
                 oneClickBtn.onclick = oneClickRecord;
             }
         }
 
-        // تسجيل ONE CLICK
+        // ✅ التسجيل بـ ONE CLICK - الميزة الرئيسية الجديدة
         function oneClickRecord() {
             if (!currentSpecialist || !currentMonth) return;
             
-            recordAttendance(currentDay, 'in');
+            const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
             
-            setTimeout(() => {
+            // إذا لم يتم تسجيل الحضور بعد
+            if (!dayData.in) {
+                // تسجيل الحضور
+                const now = new Date();
+                const timeStrIn = now.getHours().toString().padStart(2, '0') + ":" + 
+                                now.getMinutes().toString().padStart(2, '0');
+                
+                let delay = 0;
+                const limit = new Date();
+                limit.setHours(8, 30, 0, 0);
+                if (now > limit) {
+                    delay = Math.floor((now - limit) / 60000);
+                }
+                
+                // تسجيل الحضور أولاً
+                if (!attendance[currentSpecialist.id]) {
+                    attendance[currentSpecialist.id] = {};
+                }
+                if (!attendance[currentSpecialist.id][currentMonth]) {
+                    attendance[currentSpecialist.id][currentMonth] = {};
+                }
+                
+                attendance[currentSpecialist.id][currentMonth][currentDay] = {
+                    ...dayData,
+                    in: timeStrIn,
+                    delay: delay
+                };
+                
+                // حفظ مباشرة بعد الحضور
+                localStorage.setItem('ican_attendance', JSON.stringify(attendance));
+                
+                // عرض رسالة الحضور
+                alert(`✅ تم تسجيل الحضور الساعة: ${timeStrIn}\n${delay > 0 ? '⏰ تأخير: ' + delay + ' دقيقة' : '✅ في الموعد'}`);
+                
+                // تحديث الواجهة
+                loadMonthDays();
+                updateOneClickButton();
+                
+                // الانتظار 2 ثانية ثم تسجيل الانصراف تلقائياً
+                setTimeout(() => {
+                    recordAttendance(currentDay, 'out');
+                }, 2000);
+                
+            } else if (!dayData.out) {
+                // إذا كان الحضور مسجل والانصراف ليس مسجل
                 recordAttendance(currentDay, 'out');
-                alert("🎉 تم التسجيل بنجاح!");
-            }, 2000);
+            }
         }
 
-        // تسجيل الحضور أو الانصراف
+        // ✅ دالة تسجيل الانصراف فقط
         function recordAttendance(day, type) {
             if (!currentSpecialist || !currentMonth) return false;
             
@@ -879,74 +994,13 @@
             const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
                           now.getMinutes().toString().padStart(2, '0');
             
-            let delay = 0;
             let early = 0;
             let overtime = 0;
             
-            if (type === 'in') {
-                const limit = new Date();
-                limit.setHours(8, 30, 0, 0);
-                if (now > limit) {
-                    delay = Math.floor((now - limit) / 60000);
-                }
-            } else if (type === 'out') {
+            if (type === 'out') {
                 const earlyLimit = new Date();
                 earlyLimit.setHours(16, 30, 0, 0);
                 
                 if (now < earlyLimit) {
                     early = Math.floor((earlyLimit - now) / 60000);
-                } else if (now > earlyLimit) {
-                    overtime = Math.floor((now - earlyLimit) / 60000);
-                }
-            }
-            
-            if (!attendance[currentSpecialist.id]) {
-                attendance[currentSpecialist.id] = {};
-            }
-            if (!attendance[currentSpecialist.id][currentMonth]) {
-                attendance[currentSpecialist.id][currentMonth] = {};
-            }
-            
-            attendance[currentSpecialist.id][currentMonth][day] = {
-                ...attendance[currentSpecialist.id][currentMonth][day],
-                [type]: timeStr,
-                delay: type === 'in' ? delay : (attendance[currentSpecialist.id][currentMonth][day]?.delay || 0),
-                early: type === 'out' ? early : (attendance[currentSpecialist.id][currentMonth][day]?.early || 0),
-                overtime: type === 'out' ? overtime : (attendance[currentSpecialist.id][currentMonth][day]?.overtime || 0)
-            };
-            
-            localStorage.setItem('ican_attendance', JSON.stringify(attendance));
-            loadMonthDays();
-            
-            let message = `✅ تم تسجيل ${type === 'in' ? 'الحضور' : 'الانصراف'} الساعة: ${timeStr}`;
-            if (delay > 0) message += `\n⏰ تأخير: ${delay} دقيقة`;
-            if (early > 0) message += `\n⚠️ انصراف مبكر: ${early} دقيقة`;
-            if (overtime > 0) message += `\n➕ إضافي: ${overtime} دقيقة`;
-            
-            alert(message);
-            return true;
-        }
-
-        // تهيئة المستمعين
-        document.addEventListener('DOMContentLoaded', function() {
-            // إضافة مستمعين للزر Enter
-            document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') loginAdmin();
-            });
-            
-            document.getElementById('specialistPassword')?.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') verifySpecialistPassword();
-            });
-            
-            document.getElementById('newSpecialistName')?.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') addSpecialist();
-            });
-            
-            // ضمان وجود بيانات أولية
-            if (!localStorage.getItem('ican_specialists')) {
-                localStorage.setItem('ican_specialists', JSON.stringify(specialists));
-            }
-        });
-    </script>
-</body>
-</html>
+                } else if
