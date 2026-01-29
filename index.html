@@ -49,6 +49,33 @@
             display: none !important;
         }
 
+        /* زر الرجوع الجديد - في الأعلى على الشمال */
+        .top-back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #555;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .top-back-btn:hover {
+            background: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
         /* الشاشة الرئيسية */
         .title {
             font-size: 48px;
@@ -105,6 +132,28 @@
             max-width: 900px;
             width: 95%;
             margin: 20px auto;
+            max-height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* تخصيص شريط التمرير */
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .screen-title {
@@ -143,25 +192,6 @@
         .action-btn:hover {
             background: linear-gradient(135deg, #2E7D32, #1B5E20);
             transform: scale(1.05);
-        }
-
-        .back-btn {
-            background: #555;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 30px;
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-        }
-
-        .back-btn:hover {
-            background: #444;
         }
 
         /* شاشة المدير */
@@ -292,6 +322,14 @@
             
             .container {
                 padding: 20px;
+                max-height: 75vh;
+            }
+            
+            .top-back-btn {
+                top: 15px;
+                left: 15px;
+                padding: 10px 20px;
+                font-size: 14px;
             }
         }
 
@@ -314,6 +352,18 @@
                 grid-template-columns: 0.5fr 1fr 1fr 0.7fr 0.7fr 0.7fr;
                 font-size: 12px;
                 padding: 5px;
+            }
+            
+            .container {
+                padding: 15px;
+                max-height: 70vh;
+            }
+            
+            .top-back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 12px;
             }
         }
     </style>
@@ -339,6 +389,11 @@
 
     <!-- شاشة دخول المدير -->
     <div id="adminLoginScreen" class="screen hidden">
+        <button class="top-back-btn" onclick="showScreen('mainScreen')">
+            <span>🔙</span>
+            الرجوع
+        </button>
+        
         <div class="container">
             <h2 class="screen-title">👑 دخول المدير</h2>
             <div>
@@ -346,12 +401,16 @@
                 <br>
                 <button class="action-btn" onclick="loginAdmin()">دخول</button>
             </div>
-            <button class="back-btn" onclick="showScreen('mainScreen')">🔙 الرجوع</button>
         </div>
     </div>
 
     <!-- لوحة تحكم المدير -->
     <div id="adminControlPanel" class="screen hidden">
+        <button class="top-back-btn" onclick="showScreen('mainScreen')">
+            <span>🔙</span>
+            الرجوع
+        </button>
+        
         <div class="container">
             <h2 class="screen-title">👨‍💼 لوحة تحكم المدير</h2>
             
@@ -371,24 +430,31 @@
                 <button class="action-btn" style="background: #17a2b8;" onclick="viewReports()">📊 التقارير</button>
                 <button class="action-btn" style="background: #f44336;" onclick="clearAllData()">🗑️ مسح الكل</button>
             </div>
-            
-            <button class="back-btn" onclick="showScreen('mainScreen')">🔙 الرجوع</button>
         </div>
     </div>
 
     <!-- شاشة اختيار شهر الأخصائي -->
     <div id="specialistMonthScreen" class="screen hidden">
+        <button class="top-back-btn" onclick="showScreen('mainScreen')">
+            <span>🔙</span>
+            الرجوع
+        </button>
+        
         <div class="container">
             <h2 class="screen-title">👤 دخول الأخصائي</h2>
             <div>
                 <div class="month-buttons" id="monthButtons"></div>
             </div>
-            <button class="back-btn" onclick="showScreen('mainScreen')">🔙 الرجوع</button>
         </div>
     </div>
 
     <!-- شاشة إدخال الرمز السري للأخصائي -->
     <div id="specialistPasswordScreen" class="screen hidden">
+        <button class="top-back-btn" onclick="showScreen('specialistMonthScreen')">
+            <span>🔙</span>
+            الرجوع
+        </button>
+        
         <div class="container">
             <h2 class="screen-title">🔒 أدخل الرمز السري</h2>
             <div>
@@ -396,12 +462,16 @@
                 <br>
                 <button class="action-btn" onclick="verifySpecialistPassword()">دخول</button>
             </div>
-            <button class="back-btn" onclick="showScreen('specialistMonthScreen')">🔙 الرجوع</button>
         </div>
     </div>
 
     <!-- شاشة الحضور اليومية -->
     <div id="attendanceScreen" class="screen hidden">
+        <button class="top-back-btn" onclick="showScreen('specialistMonthScreen')">
+            <span>🔙</span>
+            الرجوع
+        </button>
+        
         <div class="container">
             <div style="background: #002f6c; color: white; padding: 20px; border-radius: 15px; margin-bottom: 30px;">
                 <h2 id="currentMonthHeader">📅 شهر يناير</h2>
@@ -428,8 +498,6 @@
             </div>
             
             <div id="daysContainer"></div>
-            
-            <button class="back-btn" onclick="showScreen('specialistMonthScreen')">🔙 الرجوع</button>
         </div>
     </div>
 
@@ -464,6 +532,14 @@
             if (screenId === 'adminControlPanel') {
                 loadSpecialistsList();
             }
+            
+            // عند تغيير الشاشة، نعود للأعلى
+            setTimeout(() => {
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.scrollTop = 0;
+                }
+            }, 50);
         }
 
         // دخول المدير
@@ -525,6 +601,12 @@
                 loadSpecialistsList();
                 
                 alert(`✅ تم إضافة الأخصائي: ${name}`);
+                
+                // العودة للأعلى بعد الإضافة
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.scrollTop = 0;
+                }
             } else {
                 alert("⚠️ الرجاء إدخال اسم الأخصائي!");
             }
