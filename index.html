@@ -49,7 +49,7 @@
             display: none !important;
         }
 
-        /* زر الرجوع الجديد - في الأعلى على الشمال */
+        /* زر الرجوع */
         .top-back-btn {
             position: absolute;
             top: 20px;
@@ -135,25 +135,6 @@
             max-height: 80vh;
             overflow-y: auto;
             overflow-x: hidden;
-        }
-
-        /* تخصيص شريط التمرير */
-        .container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        .container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
-        }
-
-        .container::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
         }
 
         .screen-title {
@@ -261,7 +242,7 @@
             background: #f8fff8;
         }
 
-        /* زر ONE CLICK الرئيسي - كبير وفي الوسط */
+        /* زر ONE CLICK الرئيسي */
         .main-one-click-btn {
             background: linear-gradient(45deg, #FF9800, #FF5722);
             color: white;
@@ -288,22 +269,8 @@
             background: linear-gradient(45deg, #FF5722, #FF9800);
         }
 
-        .main-one-click-btn:active {
-            transform: scale(0.98);
-        }
-
         .one-click-icon {
             font-size: 40px;
-            animation: pulse 2s infinite;
-        }
-
-        .one-click-title {
-            font-size: 28px;
-        }
-
-        .one-click-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
         }
 
         .record-btn {
@@ -366,10 +333,6 @@
             .one-click-icon {
                 font-size: 30px;
             }
-            
-            .one-click-title {
-                font-size: 22px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -413,16 +376,6 @@
             .one-click-icon {
                 font-size: 25px;
             }
-            
-            .one-click-title {
-                font-size: 18px;
-            }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -434,11 +387,11 @@
     <div id="mainScreen" class="screen">
         <h1 class="title">نظام I CAN</h1>
         <div class="main-buttons">
-            <button class="main-btn admin-btn" onclick="showScreen('adminLoginScreen')">
+            <button class="main-btn admin-btn" onclick="showAdminLogin()">
                 <span>👑</span>
                 الإدارة
             </button>
-            <button class="main-btn specialist-btn" onclick="showScreen('specialistMonthScreen')">
+            <button class="main-btn specialist-btn" onclick="showSpecialistMonth()">
                 <span>👤</span>
                 الأخصائي
             </button>
@@ -447,7 +400,7 @@
 
     <!-- شاشة دخول المدير -->
     <div id="adminLoginScreen" class="screen hidden">
-        <button class="top-back-btn" onclick="showScreen('mainScreen')">
+        <button class="top-back-btn" onclick="showMainScreen()">
             <span>🔙</span>
             الرجوع
         </button>
@@ -464,7 +417,7 @@
 
     <!-- لوحة تحكم المدير -->
     <div id="adminControlPanel" class="screen hidden">
-        <button class="top-back-btn" onclick="showScreen('mainScreen')">
+        <button class="top-back-btn" onclick="showMainScreen()">
             <span>🔙</span>
             الرجوع
         </button>
@@ -493,7 +446,7 @@
 
     <!-- شاشة اختيار شهر الأخصائي -->
     <div id="specialistMonthScreen" class="screen hidden">
-        <button class="top-back-btn" onclick="showScreen('mainScreen')">
+        <button class="top-back-btn" onclick="showMainScreen()">
             <span>🔙</span>
             الرجوع
         </button>
@@ -508,7 +461,7 @@
 
     <!-- شاشة إدخال الرمز السري للأخصائي -->
     <div id="specialistPasswordScreen" class="screen hidden">
-        <button class="top-back-btn" onclick="showScreen('specialistMonthScreen')">
+        <button class="top-back-btn" onclick="showSpecialistMonth()">
             <span>🔙</span>
             الرجوع
         </button>
@@ -525,7 +478,7 @@
 
     <!-- شاشة الحضور اليومية -->
     <div id="attendanceScreen" class="screen hidden">
-        <button class="top-back-btn" onclick="showScreen('specialistMonthScreen')">
+        <button class="top-back-btn" onclick="showSpecialistMonth()">
             <span>🔙</span>
             الرجوع
         </button>
@@ -543,8 +496,7 @@
             <!-- زر ONE CLICK الرئيسي -->
             <button id="mainOneClickBtn" class="main-one-click-btn" onclick="oneClickRecord()">
                 <div class="one-click-icon">🚀</div>
-                <div class="one-click-title">ONE CLICK التسجيل</div>
-                <div class="one-click-subtitle">انقر مرة واحدة لتسجيل الحضور والانصراف معاً</div>
+                <div>ONE CLICK التسجيل</div>
             </button>
             
             <!-- شبكة الحضور -->
@@ -562,7 +514,9 @@
     </div>
 
     <script>
-        // بيانات التطبيق
+        // ======================
+        // إعدادات النظام
+        // ======================
         let specialists = JSON.parse(localStorage.getItem('ican_specialists')) || [
             {id: 1, name: "أحمد", password: "أحمد1"},
             {id: 2, name: "محمد", password: "محمد1"},
@@ -577,29 +531,71 @@
         let currentDay = today.getDate();
         let currentMonthNum = today.getMonth() + 1;
 
-        // دالة عرض الشاشات
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.add('hidden');
-            });
+        // ======================
+        // وظائف الانتقال بين الشاشات (بدون Event Listeners معقدة)
+        // ======================
+        
+        function showMainScreen() {
+            hideAllScreens();
+            document.getElementById('mainScreen').classList.remove('hidden');
+        }
+        
+        function showAdminLogin() {
+            hideAllScreens();
+            document.getElementById('adminLoginScreen').classList.remove('hidden');
+        }
+        
+        function showSpecialistMonth() {
+            hideAllScreens();
+            document.getElementById('specialistMonthScreen').classList.remove('hidden');
+            loadMonthButtons();
+        }
+        
+        function hideAllScreens() {
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('adminLoginScreen').classList.add('hidden');
+            document.getElementById('adminControlPanel').classList.add('hidden');
+            document.getElementById('specialistMonthScreen').classList.add('hidden');
+            document.getElementById('specialistPasswordScreen').classList.add('hidden');
+            document.getElementById('attendanceScreen').classList.add('hidden');
+        }
+
+        // تحميل أزرار الشهور
+        function loadMonthButtons() {
+            const monthButtons = document.getElementById('monthButtons');
+            if (!monthButtons) return;
             
-            document.getElementById(screenId).classList.remove('hidden');
+            monthButtons.innerHTML = "";
             
-            if (screenId === 'specialistMonthScreen') {
-                loadMonthButtons();
-            }
+            const months = [
+                "يناير", "فبراير", "مارس", "أبريل", 
+                "مايو", "يونيو", "يوليو", "أغسطس", 
+                "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+            ];
             
-            if (screenId === 'adminControlPanel') {
-                loadSpecialistsList();
-            }
-            
-            // عند تغيير الشاشة، نعود للأعلى
-            setTimeout(() => {
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.scrollTop = 0;
+            months.forEach((monthName, index) => {
+                const monthNum = index + 1;
+                const btn = document.createElement('div');
+                btn.className = 'month-btn';
+                
+                if (monthNum === currentMonthNum) {
+                    btn.classList.add('current-month');
+                    btn.style.cursor = "pointer";
+                    btn.onclick = function() {
+                        currentMonth = currentMonthNum;
+                        currentMonthName = monthName;
+                        hideAllScreens();
+                        document.getElementById('specialistPasswordScreen').classList.remove('hidden');
+                    };
+                } else {
+                    btn.style.opacity = "0.5";
+                    btn.style.cursor = "not-allowed";
+                    btn.style.background = "rgba(255, 255, 255, 0.1)";
                 }
-            }, 50);
+                
+                btn.textContent = monthName;
+                monthButtons.appendChild(btn);
+            });
         }
 
         // دخول المدير
@@ -607,7 +603,9 @@
             const password = document.getElementById('adminPassword').value;
             
             if (password === "1234") {
-                showScreen('adminControlPanel');
+                hideAllScreens();
+                document.getElementById('adminControlPanel').classList.remove('hidden');
+                loadSpecialistsList();
             } else {
                 alert("❌ كود المدير غير صحيح!");
                 document.getElementById('adminPassword').value = "";
@@ -618,6 +616,8 @@
         // تحميل قائمة الأخصائيين
         function loadSpecialistsList() {
             const list = document.getElementById('specialistsList');
+            if (!list) return;
+            
             list.innerHTML = "";
             
             if (specialists.length === 0) {
@@ -661,12 +661,6 @@
                 loadSpecialistsList();
                 
                 alert(`✅ تم إضافة الأخصائي: ${name}`);
-                
-                // العودة للأعلى بعد الإضافة
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.scrollTop = 0;
-                }
             } else {
                 alert("⚠️ الرجاء إدخال اسم الأخصائي!");
             }
@@ -734,43 +728,7 @@
             alert(reports);
         }
 
-        // تحميل أزرار الشهور
-        function loadMonthButtons() {
-            const monthButtons = document.getElementById('monthButtons');
-            monthButtons.innerHTML = "";
-            
-            const months = [
-                "يناير", "فبراير", "مارس", "أبريل", 
-                "مايو", "يونيو", "يوليو", "أغسطس", 
-                "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-            ];
-            
-            months.forEach((monthName, index) => {
-                const monthNum = index + 1;
-                const btn = document.createElement('div');
-                btn.className = 'month-btn';
-                
-                if (monthNum === currentMonthNum) {
-                    btn.classList.add('current-month');
-                    btn.style.cursor = "pointer";
-                    btn.onclick = function() {
-                        currentMonth = currentMonthNum;
-                        currentMonthName = monthName;
-                        showScreen('specialistPasswordScreen');
-                        document.getElementById('specialistPassword').focus();
-                    };
-                } else {
-                    btn.style.opacity = "0.5";
-                    btn.style.cursor = "not-allowed";
-                    btn.style.background = "rgba(255, 255, 255, 0.1)";
-                }
-                
-                btn.textContent = monthName;
-                monthButtons.appendChild(btn);
-            });
-        }
-
-        // التحقق من الرمز السري
+        // التحقق من الرمز السري للأخصائي
         function verifySpecialistPassword() {
             const password = document.getElementById('specialistPassword').value.trim();
             
@@ -783,7 +741,16 @@
             
             if (specialist) {
                 currentSpecialist = specialist;
-                showAttendanceScreen();
+                hideAllScreens();
+                document.getElementById('attendanceScreen').classList.remove('hidden');
+                
+                // تحديث المعلومات
+                document.getElementById('currentMonthHeader').textContent = `📅 شهر ${currentMonthName}`;
+                document.getElementById('currentSpecialistName').textContent = currentSpecialist.name;
+                document.getElementById('currentDateDisplay').textContent = `${currentDay} ${currentMonthName} 2026`;
+                
+                loadMonthDays();
+                updateOneClickButton();
             } else {
                 alert("❌ الرمز السري غير صحيح!");
                 document.getElementById('specialistPassword').value = "";
@@ -791,23 +758,11 @@
             }
         }
 
-        // عرض شاشة الحضور
-        function showAttendanceScreen() {
-            showScreen('attendanceScreen');
-            
-            document.getElementById('currentMonthHeader').textContent = `📅 شهر ${currentMonthName}`;
-            document.getElementById('currentSpecialistName').textContent = currentSpecialist.name;
-            
-            const todayStr = `${currentDay} ${currentMonthName} 2026`;
-            document.getElementById('currentDateDisplay').textContent = todayStr;
-            
-            loadMonthDays();
-            updateOneClickButton();
-        }
-
         // تحميل أيام الشهر
         function loadMonthDays() {
             const container = document.getElementById('daysContainer');
+            if (!container) return;
+            
             container.innerHTML = "";
             
             const year = 2026;
@@ -892,13 +847,14 @@
         // تحديث زر ONE CLICK
         function updateOneClickButton() {
             const oneClickBtn = document.getElementById('mainOneClickBtn');
+            if (!oneClickBtn) return;
+            
             const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
             
             if (dayData.in && dayData.out) {
                 oneClickBtn.innerHTML = `
                     <div class="one-click-icon">✅</div>
-                    <div class="one-click-title">تم التسجيل اليوم</div>
-                    <div class="one-click-subtitle">الحضور: ${dayData.in} | الانصراف: ${dayData.out}</div>
+                    <div>تم التسجيل اليوم</div>
                 `;
                 oneClickBtn.disabled = true;
                 oneClickBtn.style.background = "#28a745";
@@ -906,8 +862,7 @@
             } else if (dayData.in && !dayData.out) {
                 oneClickBtn.innerHTML = `
                     <div class="one-click-icon">⏰</div>
-                    <div class="one-click-title">تسجيل الانصراف فقط</div>
-                    <div class="one-click-subtitle">تم تسجيل الحضور الساعة: ${dayData.in}</div>
+                    <div>تسجيل الانصراف فقط</div>
                 `;
                 oneClickBtn.disabled = false;
                 oneClickBtn.style.background = "linear-gradient(45deg, #2196F3, #03A9F4)";
@@ -917,8 +872,7 @@
             } else {
                 oneClickBtn.innerHTML = `
                     <div class="one-click-icon">🚀</div>
-                    <div class="one-click-title">ONE CLICK التسجيل</div>
-                    <div class="one-click-subtitle">انقر مرة واحدة لتسجيل الحضور والانصراف معاً</div>
+                    <div>ONE CLICK التسجيل</div>
                 `;
                 oneClickBtn.disabled = false;
                 oneClickBtn.style.background = "linear-gradient(45deg, #FF9800, #FF5722)";
@@ -926,15 +880,14 @@
             }
         }
 
-        // ✅ التسجيل بـ ONE CLICK - الميزة الرئيسية الجديدة
+        // ONE CLICK التسجيل
         function oneClickRecord() {
             if (!currentSpecialist || !currentMonth) return;
             
             const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
             
-            // إذا لم يتم تسجيل الحضور بعد
             if (!dayData.in) {
-                // تسجيل الحضور
+                // تسجيل الحضور أولاً
                 const now = new Date();
                 const timeStrIn = now.getHours().toString().padStart(2, '0') + ":" + 
                                 now.getMinutes().toString().padStart(2, '0');
@@ -946,7 +899,6 @@
                     delay = Math.floor((now - limit) / 60000);
                 }
                 
-                // تسجيل الحضور أولاً
                 if (!attendance[currentSpecialist.id]) {
                     attendance[currentSpecialist.id] = {};
                 }
@@ -960,28 +912,24 @@
                     delay: delay
                 };
                 
-                // حفظ مباشرة بعد الحضور
                 localStorage.setItem('ican_attendance', JSON.stringify(attendance));
                 
-                // عرض رسالة الحضور
-                alert(`✅ تم تسجيل الحضور الساعة: ${timeStrIn}\n${delay > 0 ? '⏰ تأخير: ' + delay + ' دقيقة' : '✅ في الموعد'}`);
+                alert(`✅ تم تسجيل الحضور الساعة: ${timeStrIn}${delay > 0 ? '\n⏰ تأخير: ' + delay + ' دقيقة' : ''}`);
                 
-                // تحديث الواجهة
                 loadMonthDays();
                 updateOneClickButton();
                 
-                // الانتظار 2 ثانية ثم تسجيل الانصراف تلقائياً
+                // بعد 2 ثانية تسجيل الانصراف
                 setTimeout(() => {
                     recordAttendance(currentDay, 'out');
                 }, 2000);
                 
             } else if (!dayData.out) {
-                // إذا كان الحضور مسجل والانصراف ليس مسجل
                 recordAttendance(currentDay, 'out');
             }
         }
 
-        // ✅ دالة تسجيل الانصراف فقط
+        // تسجيل الحضور أو الانصراف
         function recordAttendance(day, type) {
             if (!currentSpecialist || !currentMonth) return false;
             
@@ -1003,4 +951,57 @@
                 
                 if (now < earlyLimit) {
                     early = Math.floor((earlyLimit - now) / 60000);
-                } else if
+                } else if (now > earlyLimit) {
+                    overtime = Math.floor((now - earlyLimit) / 60000);
+                }
+            }
+            
+            if (!attendance[currentSpecialist.id]) {
+                attendance[currentSpecialist.id] = {};
+            }
+            if (!attendance[currentSpecialist.id][currentMonth]) {
+                attendance[currentSpecialist.id][currentMonth] = {};
+            }
+            
+            attendance[currentSpecialist.id][currentMonth][day] = {
+                ...attendance[currentSpecialist.id][currentMonth][day],
+                [type]: timeStr,
+                early: type === 'out' ? early : (attendance[currentSpecialist.id][currentMonth][day]?.early || 0),
+                overtime: type === 'out' ? overtime : (attendance[currentSpecialist.id][currentMonth][day]?.overtime || 0)
+            };
+            
+            localStorage.setItem('ican_attendance', JSON.stringify(attendance));
+            loadMonthDays();
+            updateOneClickButton();
+            
+            let message = `✅ تم تسجيل ${type === 'in' ? 'الحضور' : 'الانصراف'} الساعة: ${timeStr}`;
+            if (type === 'out' && early > 0) message += `\n⚠️ انصراف مبكر: ${early} دقيقة`;
+            if (type === 'out' && overtime > 0) message += `\n➕ إضافي: ${overtime} دقيقة`;
+            
+            alert(message);
+            return true;
+        }
+
+        // تهيئة النظام عند التحميل
+        window.onload = function() {
+            // ضمان وجود بيانات أولية
+            if (!localStorage.getItem('ican_specialists')) {
+                localStorage.setItem('ican_specialists', JSON.stringify(specialists));
+            }
+            
+            // إضافة مستمع Enter لحقول الإدخال
+            document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') loginAdmin();
+            });
+            
+            document.getElementById('specialistPassword')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') verifySpecialistPassword();
+            });
+            
+            document.getElementById('newSpecialistName')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addSpecialist();
+            });
+        };
+    </script>
+</body>
+</html>
