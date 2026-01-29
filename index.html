@@ -242,24 +242,18 @@
             background: #f8fff8;
         }
 
-        /* زرين الحضور والانصراف */
-        .attendance-buttons {
-            display: flex;
-            gap: 20px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .attendance-btn {
-            flex: 1;
-            min-width: 250px;
+        /* زر ONE CLICK الرئيسي */
+        .main-one-click-btn {
+            background: linear-gradient(45deg, #FF9800, #FF5722);
+            color: white;
             padding: 25px;
             border-radius: 15px;
             cursor: pointer;
             font-size: 24px;
             font-weight: bold;
             border: none;
+            margin: 30px 0;
+            width: 100%;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
@@ -267,47 +261,16 @@
             justify-content: center;
             gap: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            color: white;
         }
 
-        .attendance-btn:hover {
-            transform: translateY(-5px);
+        .main-one-click-btn:hover {
+            transform: scale(1.05);
             box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #FF5722, #FF9800);
         }
 
-        .attendance-btn:active {
-            transform: translateY(-2px);
-        }
-
-        .attendance-icon {
+        .one-click-icon {
             font-size: 40px;
-        }
-
-        .in-btn {
-            background: linear-gradient(45deg, #2196F3, #03A9F4);
-        }
-
-        .in-btn:hover {
-            background: linear-gradient(45deg, #1976D2, #0288D1);
-        }
-
-        .out-btn {
-            background: linear-gradient(45deg, #4CAF50, #2E7D32);
-        }
-
-        .out-btn:hover {
-            background: linear-gradient(45deg, #388E3C, #1B5E20);
-        }
-
-        .disabled-btn {
-            background: #757575 !important;
-            cursor: not-allowed !important;
-            opacity: 0.7;
-        }
-
-        .disabled-btn:hover {
-            transform: none !important;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
         }
 
         .record-btn {
@@ -325,14 +288,6 @@
             padding: 8px;
             border-radius: 8px;
             text-align: center;
-        }
-
-        .status-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            font-size: 18px;
         }
 
         /* تحسينات للموبايل */
@@ -370,13 +325,12 @@
                 font-size: 14px;
             }
             
-            .attendance-btn {
+            .main-one-click-btn {
                 padding: 20px;
                 font-size: 20px;
-                min-width: 200px;
             }
             
-            .attendance-icon {
+            .one-click-icon {
                 font-size: 30px;
             }
         }
@@ -414,17 +368,12 @@
                 font-size: 12px;
             }
             
-            .attendance-buttons {
-                flex-direction: column;
-            }
-            
-            .attendance-btn {
+            .main-one-click-btn {
                 padding: 15px;
                 font-size: 18px;
-                min-width: 100%;
             }
             
-            .attendance-icon {
+            .one-click-icon {
                 font-size: 25px;
             }
         }
@@ -544,25 +493,11 @@
                 <p>📅 اليوم: <span id="currentDateDisplay"></span></p>
             </div>
             
-            <!-- زرارين الحضور والانصراف -->
-            <div class="attendance-buttons">
-                <button id="attendanceInBtn" class="attendance-btn in-btn" onclick="recordAttendanceIn()">
-                    <div class="attendance-icon">⏰</div>
-                    <div>تسجيل الحضور</div>
-                    <div style="font-size: 16px; opacity: 0.9;">(8:30 صباحاً)</div>
-                </button>
-                
-                <button id="attendanceOutBtn" class="attendance-btn out-btn" onclick="recordAttendanceOut()">
-                    <div class="attendance-icon">🚪</div>
-                    <div>تسجيل الانصراف</div>
-                    <div style="font-size: 16px; opacity: 0.9;">(4:30 مساءً)</div>
-                </button>
-            </div>
-            
-            <!-- حالة التسجيل -->
-            <div id="attendanceStatus" class="status-info">
-                <div id="currentStatusText">لم يتم تسجيل الحضور بعد</div>
-            </div>
+            <!-- زر ONE CLICK الرئيسي -->
+            <button id="mainOneClickBtn" class="main-one-click-btn" onclick="oneClickRecord()">
+                <div class="one-click-icon">🚀</div>
+                <div>ONE CLICK التسجيل</div>
+            </button>
             
             <!-- شبكة الحضور -->
             <div class="attendance-grid" style="background: #002f6c; color: white;">
@@ -597,7 +532,7 @@
         let currentMonthNum = today.getMonth() + 1;
 
         // ======================
-        // وظائف الانتقال بين الشاشات
+        // وظائف الانتقال بين الشاشات (بدون Event Listeners معقدة)
         // ======================
         
         function showMainScreen() {
@@ -815,7 +750,7 @@
                 document.getElementById('currentDateDisplay').textContent = `${currentDay} ${currentMonthName} 2026`;
                 
                 loadMonthDays();
-                updateAttendanceButtons();
+                updateOneClickButton();
             } else {
                 alert("❌ الرمز السري غير صحيح!");
                 document.getElementById('specialistPassword').value = "";
@@ -909,100 +844,116 @@
             }
         }
 
-        // تحديث زرارين الحضور والانصراف
-        function updateAttendanceButtons() {
-            const inBtn = document.getElementById('attendanceInBtn');
-            const outBtn = document.getElementById('attendanceOutBtn');
-            const statusText = document.getElementById('currentStatusText');
-            
-            if (!inBtn || !outBtn || !statusText) return;
+        // تحديث زر ONE CLICK
+        function updateOneClickButton() {
+            const oneClickBtn = document.getElementById('mainOneClickBtn');
+            if (!oneClickBtn) return;
             
             const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
             
             if (dayData.in && dayData.out) {
-                // الحالة: تم التسجيل بالكامل
-                inBtn.innerHTML = `
-                    <div class="attendance-icon">✅</div>
-                    <div>تم الحضور</div>
-                    <div style="font-size: 16px; opacity: 0.9;">${dayData.in}</div>
+                oneClickBtn.innerHTML = `
+                    <div class="one-click-icon">✅</div>
+                    <div>تم التسجيل اليوم</div>
                 `;
-                inBtn.classList.add('disabled-btn');
-                inBtn.onclick = null;
-                
-                outBtn.innerHTML = `
-                    <div class="attendance-icon">✅</div>
-                    <div>تم الانصراف</div>
-                    <div style="font-size: 16px; opacity: 0.9;">${dayData.out}</div>
-                `;
-                outBtn.classList.add('disabled-btn');
-                outBtn.onclick = null;
-                
-                statusText.innerHTML = `
-                    ✅ تم التسجيل بالكامل اليوم<br>
-                    <small>الحضور: ${dayData.in} | الانصراف: ${dayData.out}</small>
-                `;
-                
+                oneClickBtn.disabled = true;
+                oneClickBtn.style.background = "#28a745";
+                oneClickBtn.onclick = null;
             } else if (dayData.in && !dayData.out) {
-                // الحالة: تم الحضور فقط
-                inBtn.innerHTML = `
-                    <div class="attendance-icon">✅</div>
-                    <div>تم الحضور</div>
-                    <div style="font-size: 16px; opacity: 0.9;">${dayData.in}</div>
+                oneClickBtn.innerHTML = `
+                    <div class="one-click-icon">⏰</div>
+                    <div>تسجيل الانصراف فقط</div>
                 `;
-                inBtn.classList.add('disabled-btn');
-                inBtn.onclick = null;
-                
-                outBtn.innerHTML = `
-                    <div class="attendance-icon">🚪</div>
-                    <div>تسجيل الانصراف</div>
-                    <div style="font-size: 16px; opacity: 0.9;">(4:30 مساءً)</div>
-                `;
-                outBtn.classList.remove('disabled-btn');
-                outBtn.onclick = recordAttendanceOut;
-                
-                statusText.innerHTML = `
-                    ⏰ تم تسجيل الحضور الساعة ${dayData.in}<br>
-                    <small>بانتظار تسجيل الانصراف</small>
-                `;
-                
+                oneClickBtn.disabled = false;
+                oneClickBtn.style.background = "linear-gradient(45deg, #2196F3, #03A9F4)";
+                oneClickBtn.onclick = function() {
+                    recordAttendance(currentDay, 'out');
+                };
             } else {
-                // الحالة: لم يتم التسجيل بعد
-                inBtn.innerHTML = `
-                    <div class="attendance-icon">⏰</div>
-                    <div>تسجيل الحضور</div>
-                    <div style="font-size: 16px; opacity: 0.9;">(8:30 صباحاً)</div>
+                oneClickBtn.innerHTML = `
+                    <div class="one-click-icon">🚀</div>
+                    <div>ONE CLICK التسجيل</div>
                 `;
-                inBtn.classList.remove('disabled-btn');
-                inBtn.onclick = recordAttendanceIn;
-                
-                outBtn.innerHTML = `
-                    <div class="attendance-icon">🚪</div>
-                    <div>تسجيل الانصراف</div>
-                    <div style="font-size: 16px; opacity: 0.9;">(4:30 مساءً)</div>
-                `;
-                outBtn.classList.add('disabled-btn');
-                outBtn.onclick = null;
-                
-                statusText.innerHTML = `
-                    🔄 لم يتم تسجيل الحضور بعد<br>
-                    <small>يمكنك تسجيل الحضور الآن</small>
-                `;
+                oneClickBtn.disabled = false;
+                oneClickBtn.style.background = "linear-gradient(45deg, #FF9800, #FF5722)";
+                oneClickBtn.onclick = oneClickRecord;
             }
         }
 
-        // تسجيل الحضور
-        function recordAttendanceIn() {
+        // ONE CLICK التسجيل
+        function oneClickRecord() {
             if (!currentSpecialist || !currentMonth) return;
             
-            const now = new Date();
-            const timeStrIn = now.getHours().toString().padStart(2, '0') + ":" + 
-                            now.getMinutes().toString().padStart(2, '0');
+            const dayData = attendance[currentSpecialist.id]?.[currentMonth]?.[currentDay] || {};
             
-            let delay = 0;
-            const limit = new Date();
-            limit.setHours(8, 30, 0, 0);
-            if (now > limit) {
-                delay = Math.floor((now - limit) / 60000);
+            if (!dayData.in) {
+                // تسجيل الحضور أولاً
+                const now = new Date();
+                const timeStrIn = now.getHours().toString().padStart(2, '0') + ":" + 
+                                now.getMinutes().toString().padStart(2, '0');
+                
+                let delay = 0;
+                const limit = new Date();
+                limit.setHours(8, 30, 0, 0);
+                if (now > limit) {
+                    delay = Math.floor((now - limit) / 60000);
+                }
+                
+                if (!attendance[currentSpecialist.id]) {
+                    attendance[currentSpecialist.id] = {};
+                }
+                if (!attendance[currentSpecialist.id][currentMonth]) {
+                    attendance[currentSpecialist.id][currentMonth] = {};
+                }
+                
+                attendance[currentSpecialist.id][currentMonth][currentDay] = {
+                    ...dayData,
+                    in: timeStrIn,
+                    delay: delay
+                };
+                
+                localStorage.setItem('ican_attendance', JSON.stringify(attendance));
+                
+                alert(`✅ تم تسجيل الحضور الساعة: ${timeStrIn}${delay > 0 ? '\n⏰ تأخير: ' + delay + ' دقيقة' : ''}`);
+                
+                loadMonthDays();
+                updateOneClickButton();
+                
+                // بعد 2 ثانية تسجيل الانصراف
+                setTimeout(() => {
+                    recordAttendance(currentDay, 'out');
+                }, 2000);
+                
+            } else if (!dayData.out) {
+                recordAttendance(currentDay, 'out');
+            }
+        }
+
+        // تسجيل الحضور أو الانصراف
+        function recordAttendance(day, type) {
+            if (!currentSpecialist || !currentMonth) return false;
+            
+            if (day !== currentDay) {
+                alert("⚠️ يمكنك التسجيل في اليوم الحالي فقط!");
+                return false;
+            }
+            
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                          now.getMinutes().toString().padStart(2, '0');
+            
+            let early = 0;
+            let overtime = 0;
+            
+            if (type === 'out') {
+                const earlyLimit = new Date();
+                earlyLimit.setHours(16, 30, 0, 0);
+                
+                if (now < earlyLimit) {
+                    early = Math.floor((earlyLimit - now) / 60000);
+                } else if (now > earlyLimit) {
+                    overtime = Math.floor((now - earlyLimit) / 60000);
+                }
             }
             
             if (!attendance[currentSpecialist.id]) {
@@ -1012,4 +963,45 @@
                 attendance[currentSpecialist.id][currentMonth] = {};
             }
             
-            attendance[currentSpecialist.id][currentMonth][
+            attendance[currentSpecialist.id][currentMonth][day] = {
+                ...attendance[currentSpecialist.id][currentMonth][day],
+                [type]: timeStr,
+                early: type === 'out' ? early : (attendance[currentSpecialist.id][currentMonth][day]?.early || 0),
+                overtime: type === 'out' ? overtime : (attendance[currentSpecialist.id][currentMonth][day]?.overtime || 0)
+            };
+            
+            localStorage.setItem('ican_attendance', JSON.stringify(attendance));
+            loadMonthDays();
+            updateOneClickButton();
+            
+            let message = `✅ تم تسجيل ${type === 'in' ? 'الحضور' : 'الانصراف'} الساعة: ${timeStr}`;
+            if (type === 'out' && early > 0) message += `\n⚠️ انصراف مبكر: ${early} دقيقة`;
+            if (type === 'out' && overtime > 0) message += `\n➕ إضافي: ${overtime} دقيقة`;
+            
+            alert(message);
+            return true;
+        }
+
+        // تهيئة النظام عند التحميل
+        window.onload = function() {
+            // ضمان وجود بيانات أولية
+            if (!localStorage.getItem('ican_specialists')) {
+                localStorage.setItem('ican_specialists', JSON.stringify(specialists));
+            }
+            
+            // إضافة مستمع Enter لحقول الإدخال
+            document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') loginAdmin();
+            });
+            
+            document.getElementById('specialistPassword')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') verifySpecialistPassword();
+            });
+            
+            document.getElementById('newSpecialistName')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addSpecialist();
+            });
+        };
+    </script>
+</body>
+</html>
