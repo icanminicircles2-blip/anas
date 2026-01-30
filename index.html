@@ -15,7 +15,6 @@
             overflow-x: hidden;
         }
 
-        /* اللوجو أعلى اليمين */
         .header-logo {
             position: absolute;
             top: 20px;
@@ -50,7 +49,6 @@
             max-width: 900px; width: 95%; margin: 20px auto; max-height: 80vh; overflow-y: auto;
         }
 
-        /* أزرار الحضور جنب بعض */
         .attendance-buttons-row {
             display: flex; gap: 15px; width: 100%; margin: 25px 0;
         }
@@ -76,8 +74,7 @@
         }
         .stat-box { background: #eee; padding: 5px; border-radius: 5px; }
 
-        /* التقرير */
-        .report-card { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: right; }
+        .report-card { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: right; line-height: 1.6; }
 
         input { padding: 15px; border-radius: 10px; border: none; width: 80%; max-width: 300px; font-size: 18px; margin: 10px 0; }
         .action-btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #4CAF50; color: white; }
@@ -263,7 +260,6 @@
             const time = t.getHours() + ":" + t.getMinutes().toString().padStart(2, '0');
             const limit = new Date(); limit.setHours(8, 30, 0);
             let delay = t > limit ? Math.floor((t - limit) / 60000) : 0;
-            
             saveData(now.getDate(), { in: time, delay: delay });
         }
 
@@ -273,7 +269,6 @@
             const limit = new Date(); limit.setHours(16, 30, 0);
             let early = t < limit ? Math.floor((limit - t) / 60000) : 0;
             let over = t > limit ? Math.floor((t - limit) / 60000) : 0;
-
             saveData(now.getDate(), { out: time, early: early, over: over });
         }
 
@@ -293,20 +288,22 @@
             const currentM = now.getMonth() + 1;
 
             specialists.forEach(spec => {
-                let totalDelay = 0, totalOver = 0, days = 0;
+                let totalDelay = 0, totalOver = 0, totalEarly = 0, days = 0;
                 const monthData = attendance[spec.name]?.[currentM] || {};
                 Object.values(monthData).forEach(d => {
                     totalDelay += (d.delay || 0);
                     totalOver += (d.over || 0);
+                    totalEarly += (d.early || 0);
                     if(d.in) days++;
                 });
 
                 container.innerHTML += `
                     <div class="report-card">
                         <strong>الأخصائي: ${spec.name}</strong><br>
-                        عدد أيام العمل: ${days} يوم<br>
-                        إجمالي التأخير: ${totalDelay} دقيقة<br>
-                        إجمالي الإضافي: ${totalOver} دقيقة
+                        📅 عدد أيام العمل: ${days} يوم<br>
+                        ⏰ إجمالي التأخير: ${totalDelay} دقيقة<br>
+                        🚪 إجمالي انصراف مبكر: ${totalEarly} دقيقة<br>
+                        ➕ إجمالي الإضافي: ${totalOver} دقيقة
                     </div>`;
             });
         }
