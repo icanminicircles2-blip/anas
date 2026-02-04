@@ -134,6 +134,9 @@
             <div id="specialistsList" style="margin-bottom: 20px;"></div>
             
             <button class="action-btn" style="background:#17a2b8" onclick="viewReports()">📊 عرض التقارير</button>
+<button class="action-btn" style="background:#28a745" onclick="exportBackup()">📤 تصدير نسخة احتياطية (Backup)</button>
+<button class="action-btn" style="background:#ffc107; color:black;" onclick="document.getElementById('importFile').click()">📥 استيراد بيانات</button>
+<input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
             <button class="action-btn" style="background:#6c757d" onclick="exportDetailedPDF()">📋 حفظ نسخة تفصيلية (PDF)</button>
             <button class="action-btn" style="background:#f44336" onclick="clearAllData()">🗑️ مسح البيانات</button>
             
@@ -420,6 +423,54 @@
         }
 
         function clearAllData() { if(confirm("مسح الكل؟")) { localStorage.clear(); location.reload(); } }
+        // وظيفة تصدير النسخة الاحتياطية
+function exportBackup() {
+    const backupData = {
+        specialists: specialists,
+        attendance: attendance,
+        timestamp: new Date().toLocaleString()
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "ICAN_Backup_" + new Date().toLocaleDateString() + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+// وظيفة استيراد البيانات
+function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (confirm("⚠️ هل أنت متأكد؟ سيتم استبدال البيانات الحالية بالنسخة الاحتياطية بتاريخ: " + (importedData.timestamp || "غير معروف"))) {
+                if (importedData.specialists) {
+                    specialists = importedData.specialists;
+                    localStorage.setItem('ican_specs', JSON.stringify(specialists));
+                }
+                if (importedData.attendance) {
+                    attendance = importedData.attendance;
+                    localStorage.setItem('ican_att', JSON.stringify(attendance));
+                }
+                // تحديث الفايربيز
+                db.ref('/').set({
+                    specialists: Array.isArray(importedData.specialists) ? 
+                        importedData.specialists.reduce((acc, curr) => { acc[curr.name] = curr; return acc; }, {}) : 
+                        importedData.specialists,
+                    attendance: importedData.attendance
+                }).then(() => {
+                    alert("✅ تم الاستيراد بنجاح!");
+                    location.reload();
+                });
+            }
+        } catch (err) { alert("❌ خطأ في قراءة الملف"); }
+    };
+    reader.readAsText(file);
+}
 
         function toggleModal(show) {
             document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
